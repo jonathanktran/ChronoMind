@@ -1,7 +1,15 @@
 """This file contains the run method, which runs the game"""
 
+
 from display import *
 import fonts
+import common.rounds
+from common.rounds.straight import Straight
+from common.rounds.sprinkler import Sprinkler
+from common.enemies.bullet import Bullet
+import builtins
+
+test = [False] * 3
 
 
 def run(player, enemies, rounds):
@@ -11,6 +19,17 @@ def run(player, enemies, rounds):
 
         # Tick the game forward once
         dt = clock.tick(FPS)
+
+        global test
+        if pg.time.get_ticks() > 8000 and not test[0]:
+            common.rounds.round_create(Straight(Bullet, DISPLAY_WIDTH/2, 0, 0, 1/2, (0, 255, 0), 1000, 500))
+            test[0] = True
+        if pg.time.get_ticks() > 16000 and not test[1]:
+            common.rounds.round_create(Sprinkler(Bullet, DISPLAY_WIDTH, DISPLAY_HEIGHT/2, 3/4, 180, 135, 225, 90, (0, 255, 0), 1000, 250))
+            test[1] = True
+        if pg.time.get_ticks() > 24000 and not test[2]:
+            common.rounds.round_create(Sprinkler(Bullet, DISPLAY_WIDTH/2, DISPLAY_HEIGHT, 3/4, 270, 225, 315, 90, (0, 255, 0), 1000, 250))
+            test[2] = True
 
         # region Events
 
@@ -62,6 +81,10 @@ def run(player, enemies, rounds):
         # Draw the number of lives
         lives_surface = fonts.lives.render('Lives: ' + str(player.lives), False, (0, 0, 0))
         display.blit(lives_surface, (32, 32))
+
+        # Draw the time
+        time_surface = fonts.lives.render('Time: ' + str(builtins.round(pg.time.get_ticks()/100)), False, (0, 0, 0))
+        display.blit(time_surface, (DISPLAY_WIDTH - time_surface.get_width() - 32, 32))
 
         # endregion Draw the HUD
 

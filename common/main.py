@@ -6,12 +6,15 @@ from enemies.bullet import *
 from rounds.straight import *
 import player
 
+# Initialize the mixer
+pg.mixer.init()
 
-# Add some enemies
-enemy_create(Bullet(0, 0, 1/2,  1/2, (255, 0, 0)))
+# Play music
+pg.mixer.music.load('assets/music/Megalovania.ogg')
+pg.mixer.music.play()
 
 # Add a round
-rounds.round_create(Straight(Bullet, DISPLAY_WIDTH/2, 0, 1, 2, (0, 255, 0), 100, 1000))
+rounds.round_create(Straight(Bullet, 0, DISPLAY_HEIGHT/2, 1/2, 0, (0, 255, 0), 1000, 500))
 
 # Create the player
 player = player.Player(DISPLAY_WIDTH/2, DISPLAY_HEIGHT/2)
