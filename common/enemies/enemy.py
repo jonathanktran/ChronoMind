@@ -10,6 +10,10 @@ class Enemy:
         """The code runs every loop"""
         pass
 
+    def collide(self):
+        """This code runs when the enemy collides with the player"""
+        pass
+
     def draw(self):
         """Draw the bulllet to the screen"""
         pass
