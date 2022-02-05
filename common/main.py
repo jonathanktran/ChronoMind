@@ -14,7 +14,7 @@ pg.mixer.music.load('assets/music/Megalovania.ogg')
 pg.mixer.music.play()
 
 # Add a round
-rounds.round_create(Straight(Bullet, 0, DISPLAY_HEIGHT/2, 1/2, 0, (0, 255, 0), 1000, 500))
+rounds.round_create(Straight(Bullet, -8, DISPLAY_HEIGHT/2, 1/2, 0, (0, 255, 0), 1000, 500))
 
 # Create the player
 player = player.Player(DISPLAY_WIDTH/2, DISPLAY_HEIGHT/2)

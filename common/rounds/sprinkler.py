@@ -21,7 +21,7 @@ class Sprinkler(round.Round):
         self.color = color
         self.enemy_count = enemy_count
         self.dt = dt
-        self.time = 0
+        self.time = dt
 
     def create_enemy(self, dt):
         """Spawn an enemy"""

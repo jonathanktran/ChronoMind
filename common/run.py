@@ -20,15 +20,16 @@ def run(player, enemies, rounds):
         # Tick the game forward once
         dt = clock.tick(FPS)
 
+        # Game Testing
         global test
-        if pg.time.get_ticks() > 8000 and not test[0]:
-            common.rounds.round_create(Straight(Bullet, DISPLAY_WIDTH/2, 0, 0, 1/2, (0, 255, 0), 1000, 500))
+        if pg.time.get_ticks() >= 8950 and not test[0]:
+            common.rounds.round_create(Straight(Bullet, DISPLAY_WIDTH/2, -8, 0, 1/2, (0, 255, 0), 1000, 500))
             test[0] = True
-        if pg.time.get_ticks() > 16000 and not test[1]:
-            common.rounds.round_create(Sprinkler(Bullet, DISPLAY_WIDTH, DISPLAY_HEIGHT/2, 3/4, 180, 135, 225, 90, (0, 255, 0), 1000, 250))
+        if pg.time.get_ticks() >= 17000 and not test[1]:
+            common.rounds.round_create(Sprinkler(Bullet, DISPLAY_WIDTH+8, DISPLAY_HEIGHT/2, 3/4, 180, 135, 225, 90, (0, 255, 0), 1000, 250))
             test[1] = True
-        if pg.time.get_ticks() > 24000 and not test[2]:
-            common.rounds.round_create(Sprinkler(Bullet, DISPLAY_WIDTH/2, DISPLAY_HEIGHT, 3/4, 270, 225, 315, 90, (0, 255, 0), 1000, 250))
+        if pg.time.get_ticks() >= 25000 and not test[2]:
+            common.rounds.round_create(Sprinkler(Bullet, DISPLAY_WIDTH/2, DISPLAY_HEIGHT+8, 3/4, 270, 225, 315, 90, (0, 255, 0), 1000, 250))
             test[2] = True
 
         # region Events
@@ -83,7 +84,7 @@ def run(player, enemies, rounds):
         display.blit(lives_surface, (32, 32))
 
         # Draw the time
-        time_surface = fonts.lives.render('Time: ' + str(builtins.round(pg.time.get_ticks()/100)), False, (0, 0, 0))
+        time_surface = fonts.lives.render('Time: ' + str(builtins.round(pg.time.get_ticks()/1000)), False, (0, 0, 0))
         display.blit(time_surface, (DISPLAY_WIDTH - time_surface.get_width() - 32, 32))
 
         # endregion Draw the HUD
