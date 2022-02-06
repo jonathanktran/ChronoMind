@@ -6,5 +6,5 @@ import pygame as pg
 # Initialize the fonts
 pg.font.init()
 
-# The
-lives = pg.font.SysFont('Comic Sans MS', 30)
+# The font used to display the hud
+HUD = pg.font.SysFont('Comic Sans MS', 30)
