@@ -3,15 +3,9 @@
 
 from display import *
 import fonts
-import common.rounds
-from common.rounds.straight import Straight
-from common.rounds.sprinkler import Sprinkler
-from common.enemies.bullet import Bullet
+import time_control
 import math
-
-
-# Test Variables
-test = [False] * 4
+import timeline
 
 
 def run(player, enemies, rounds):
@@ -25,29 +19,20 @@ def run(player, enemies, rounds):
     # Store the current time
     time = 0
 
+    # Start the first timeline, if there is any
+    timeline.check(0, 1)
+
     # Run the game until it is quit
     while True:
 
         # Wait until the FPS time has passed.
-        dt = clock.tick(FPS)
+        dt = clock.tick(FPS) * time_control.time_mult
 
         # Find the current time
         time += dt
 
-        # Game Testing
-        global test
-        if time >= 0 and not test[0]:
-            common.rounds.round_create(Straight(Bullet, 0, DISPLAY_HEIGHT/2, DISPLAY_WIDTH, 0, (0, 255, 0), 1000, 500))
-            test[0] = True
-        if time >= 8000 and not test[1]:
-            common.rounds.round_create(Straight(Bullet, DISPLAY_WIDTH/2, 0, 0, DISPLAY_HEIGHT, (0, 255, 0), 1000, 500))
-            test[1] = True
-        if time >= 16000 and not test[2]:
-            common.rounds.round_create(Sprinkler(Bullet, DISPLAY_WIDTH, DISPLAY_HEIGHT/2, DISPLAY_WIDTH, 180, 135, 225, 30, (0, 255, 0), 1000, 250))
-            test[2] = True
-        if time >= 24000 and not test[3]:
-            common.rounds.round_create(Sprinkler(Bullet, DISPLAY_WIDTH/2, DISPLAY_HEIGHT+8, DISPLAY_HEIGHT, 270, 225, 315, 30, (0, 255, 0), 1000, 250))
-            test[3] = True
+        # Check the timeline for each ms that we just covered
+        timeline.check(time, dt)
 
         # region Events
 
@@ -64,6 +49,14 @@ def run(player, enemies, rounds):
                 # End the game if the escape key is pressed
                 if event.key == pg.K_ESCAPE:
                     return
+
+                # Increase the time multiplier if the up arrow is pressed
+                elif event.key == pg.K_UP:
+                    time_control.time_mult = min(time_control.time_mult / time_control.DELTA_TIME_MULT, time_control.MAX_TIME_MULT)
+
+                # Decrease the time multiplier if the down arrow is pressed
+                elif event.key == pg.K_DOWN:
+                    time_control.time_mult = max(time_control.time_mult * time_control.DELTA_TIME_MULT, time_control.MIN_TIME_MULT)
 
         # endregion Events
 
@@ -103,6 +96,10 @@ def run(player, enemies, rounds):
         # Draw the time
         time_surface = fonts.HUD.render('Time: ' + str(math.floor(time/1000)), False, (0, 0, 0))
         display.blit(time_surface, (DISPLAY_WIDTH - time_surface.get_width() - 32, 32))
+
+        # Draw the time multiplier
+        time_mult_surface = fonts.HUD.render('Time Multiplier: ' + str(time_control.time_mult), False, (0, 0, 0))
+        display.blit(time_mult_surface, (DISPLAY_WIDTH/2 - time_surface.get_width()/2, 32))
 
         # endregion Draw the HUD
 

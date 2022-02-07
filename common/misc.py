@@ -4,7 +4,7 @@ import math
 
 
 def point_distance(point_1, point_2):
-    """ Return the distance between two given points
+    """Return the distance between two given points
 
     :param point_1: The first point
     :param point_2: The second knife

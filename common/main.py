@@ -2,8 +2,8 @@
 
 from run import run
 from display import *
-from enemies.bullet import *
-from rounds.straight import *
+from enemies import enemy_list
+from rounds import round_list
 import player
 import music
 
@@ -13,11 +13,8 @@ player = player.Player(DISPLAY_WIDTH/2, DISPLAY_HEIGHT/2)
 # Start the music
 pg.mixer.music.play()
 
-#enemy_create(Bullet(DISPLAY_WIDTH/2, DISPLAY_HEIGHT/2, 0, 0, (0, 0, 0)))
-
 # Run the game
-run(player, enemies, rounds.rounds)
+run(player, enemy_list, round_list)
 
 # Close the window
 pg.quit()
-
