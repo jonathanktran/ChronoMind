@@ -15,10 +15,11 @@ round_id = 0
 
 # region Functionality
 
-def round_create(round):
+def round_create(round, delay):
     """Assign a round an ID, and add it to the rounds dictionary
 
     :param round: An instantiated round
+    :param delay: The amount of time since the round should have been created
     """
 
     global round_id
@@ -33,7 +34,6 @@ def round_destroy(round):
     :param round: A round which is already in the dictionary
     """
 
-    global rounds
     round_list.pop(round.id)
 
 # endregion Functionality
@@ -50,8 +50,18 @@ class Round:
         """The runs every step"""
         pass
 
-    def create_enemy(self):
-        """Spawn an enemy"""
+    def step(self, dt):
+        """This runs every frame
+
+        :param dt: The amount of time since the previous frame
+        """
+        pass
+
+    def create_enemy(self, delay):
+        """Spawn an enemy
+
+        :param delay: The amount of time this enemy is being created past the expected time
+        """
         pass
 
 
@@ -88,15 +98,18 @@ class Sprinkler(Round):
         self.dt = dt
         self.time = dt
 
-    def create_enemy(self):
-        """Spawn an enemy"""
+    def create_enemy(self, delay):
+        """Spawn an enemy
+
+        :param delay: The amount of time this enemy is being created past the expected time
+        """
 
         # Find the speed
         vel_x = math.cos(self.dir) * self.vel
         vel_y = math.sin(self.dir) * self.vel
 
         # Spawn the enemy
-        enemies.enemy_create(self.enemy((self.x, self.y), (vel_x, vel_y), self.color))
+        enemies.enemy_create(self.enemy((self.x, self.y), (vel_x, vel_y), self.color), delay)
         self.enemy_count = self.enemy_count - 1
 
         # Check if the round is finished
@@ -129,7 +142,7 @@ class Sprinkler(Round):
         if self.time > self.dt:
 
             # Create an enemy
-            self.create_enemy()
+            self.create_enemy(self.time - self.dt)
 
             # Reset the timer
             self.time -= self.dt
@@ -159,16 +172,16 @@ class Straight(Round):
         self.color = color
         self.enemy_count = enemy_count
         self.dt = dt
-        self.time = 0
+        self.time = dt
 
-        # Create the first enemy
-        self.create_enemy()
+    def create_enemy(self, delay):
+        """Spawn an enemy
 
-    def create_enemy(self):
-        """Spawn an enemy"""
+        :param delay: The amount of time this enemy is being created past the expected time
+        """
 
         # Spawn the enemy
-        enemies.enemy_create(self.enemy((self.x, self.y), (self.vel_x, self.vel_y), self.color))
+        enemies.enemy_create(self.enemy((self.x, self.y), (self.vel_x, self.vel_y), self.color), delay)
         self.enemy_count = self.enemy_count - 1
 
         # Check if the round is finished
@@ -188,7 +201,7 @@ class Straight(Round):
         if self.time >= self.dt:
 
             # Create an enemy
-            self.create_enemy()
+            self.create_enemy(self.time - self.dt)
 
             # Reset the timer
             self.time -= self.dt

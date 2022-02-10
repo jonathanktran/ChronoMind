@@ -25,16 +25,22 @@ MAX_Y = display.DISPLAY_HEIGHT*2
 # region Functionality
 
 
-def enemy_create(enemy):
+def enemy_create(enemy, delay):
     """Assign an enemy an ID, and add it to the enemies dictionary
 
     :param enemy: An instantiated enemy
+    :param delay: The amount of ms since the enemy should have been created
     """
 
     global enemy_id, enemy_list
+
+    # Add the enemy to the enemy list
     enemy_list[enemy_id] = enemy
     enemy.id = enemy_id
     enemy_id = enemy_id + 1
+
+    # Step the enemy forward to account for the delay
+    enemy.step(delay)
 
 
 def enemy_destroy(enemy):
@@ -64,6 +70,10 @@ class Enemy:
 
         :param dt: The amount of time since the previous frame
         """
+        pass
+
+    def get_velocity(self):
+        """Returns the velocity (vel_x, vel_y) tuple of the enemy."""
         pass
 
     def collide(self):
@@ -112,6 +122,10 @@ class Bullet(Enemy):
         # Check if the bullet is far off screen
         if self.x < MIN_X or self.x > MAX_X or self.y < MIN_Y or self.y > MAX_Y:
             enemy_destroy(self)
+
+    def get_velocity(self, dt):
+        """Returns the velocity (vel_x, vel_y) tuple of the enemy."""
+        return self.x_vel * dt/1000, self.y_vel * dt/1000
 
     def collide(self):
         """This runs when the enemy collides with the player"""

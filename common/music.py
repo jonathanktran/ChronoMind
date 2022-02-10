@@ -7,4 +7,4 @@ import pygame as pg
 pg.mixer.init()
 
 # Load the current song
-pg.mixer.music.load('assets/music/Megalovania.ogg')
+pg.mixer.music.load('assets/music/Megalovania.wav')

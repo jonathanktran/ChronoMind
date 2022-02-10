@@ -1,9 +1,8 @@
 """This file defines the player object"""
 
-import math
 import pygame as pg
 from display import display
-from misc import point_distance, min_distance_on_vector_to_point
+from misc import lines_within_range
 
 
 class Player:
@@ -33,23 +32,17 @@ class Player:
         # Find the distance of the player to the mouse
         x_diff = pg.mouse.get_pos()[0] - self.x
         y_diff = pg.mouse.get_pos()[1] - self.y
-        mouse_dist = math.sqrt(x_diff ** 2 + y_diff ** 2)
 
         # Check for enemy collisions
         for enemy in enemies:
 
-            # Find the smallest magnitude along the vector to the mouse
-            min_distance = min_distance_on_vector_to_point(x_diff, y_diff, self.x, self.y, enemy.x, enemy.y,
-                                                           mag_max=mouse_dist)
+            # Find whether the enemy collides with the player
+            collision = lines_within_range((x_diff, y_diff), (self.x, self.y),
+                                              enemy.get_velocity(dt), (enemy.x, enemy.y),
+                                              self.radius + enemy.radius)
 
-            # If the player is not moving
-            if min_distance is None:
-                if point_distance((enemy.x, enemy.y), (self.x, self.y)) < self.radius + enemy.radius:
-                    enemy.collide()
-                    self.lives = self.lives - 1
-
-            # If the player is moving
-            elif min_distance < (self.radius + enemy.radius):
+            # If the player collides with the enemy
+            if collision:
                 enemy.collide()
                 self.lives = self.lives - 1
 

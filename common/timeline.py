@@ -91,11 +91,11 @@ def check(time, dt):
 
                 # If the instance is an enemy, add the enemy to the enemies list
                 if isinstance(event, enemies.Enemy):
-                    enemies.enemy_create(event)
+                    enemies.enemy_create(event, time - ms)
 
                 # If the event is a round, add the round to the round list
                 else:
-                    rounds.round_create(event)
+                    rounds.round_create(event, time - ms)
 
             # Remove this time from the timeline
             del timeline[ms]

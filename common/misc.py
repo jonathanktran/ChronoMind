@@ -3,6 +3,23 @@
 import math
 
 
+def clamp(min_value, max_value, value):
+    """ Returns a number who's minimum and maximum are bounded
+
+    :param min_value: The minimum returned value
+    :param max_value: The maximum returned value
+    :param value: The value to clamp
+    :return: A value clamped between two other values
+    """
+
+    return max(min(max_value, value), min_value)
+
+
+def determinate(a, b):
+    """Return the determinate for two vectors"""
+    return a[0] * b[1] - a[1] * b[0]
+
+
 def point_distance(point_1, point_2):
     """Return the distance between two given points
 
@@ -14,40 +31,70 @@ def point_distance(point_1, point_2):
     return math.sqrt((point_1[0] - point_2[0]) ** 2 + (point_1[1] - point_2[1]) ** 2)
 
 
-def min_distance_on_vector_to_point(vector_x, vector_y, vector_base_x, vector_base_y, point_x, point_y,
-                                    mag_max=float("inf")):
-    """Returns the smallest distance between a line and a given point, where the line has a bounded absolute
-    magnitude.
+def lines_point_meeting(vector_1, pos_1, vector_2, pos_2):
+    """Return true if vectors pass within a given radius of one another, and false if not.
 
-    :param vector_x: The x component of the vector
-    :param vector_y: The y component of the vector
-    :param vector_base_x: The starting x position of the vector
-    :param vector_base_y: The starting y position of the vector
-    :param point_x: The x position of the point
-    :param point_y: The y position of the point
-    :param mag_max: The maximum absolute magnitude that the vector can have
-    :return: The smallest absolute magnitude between a line and a point, or None if the given vector is a 0 vector
+    :param vector_1: The vector component of the first line
+    :param pos_1: The starting position of the first line
+    :param vector_2: The vector component of the second line
+    :param pos_2: The starting position of the second line
+    :return: Returns the (x, y) position where the two lines intersect, or None if they do not.
     """
 
-    # Return None if the vector is 0
-    if vector_x == 0 and vector_y == 0:
+    # Find the determinate of the velocities
+    div = determinate(vector_1, vector_2)
+
+    # If the determinate is 0, the lines are parallel
+    if div == 0:
         return None
 
-    # Find the t-value which minimizes the distance
-    t = -((vector_y * (vector_base_y - point_y)) + (vector_x * (vector_base_x - point_x))) / (
-        vector_y**2 + vector_x**2)
+    # Find the determinants of both lines
+    d = (determinate((pos_1[0], pos_1[1]), (vector_1[0] + pos_1[0], vector_1[1] + pos_1[1])),
+         determinate((pos_2[0], pos_2[1]), (vector_2[0] + pos_2[0], vector_2[1] + pos_2[1])))
 
-    # Find the magnitude of the vector which minimizes the distance
-    mag_min_distance = math.sqrt((vector_x * t)**2 + (vector_y * t)**2)
+    # Find the coordinates of the meeting place
+    x = determinate(d, vector_1) / div
+    y = determinate(d, vector_2) / div
 
-    # Find the t value which produces the maximum allowed magnitude
-    max_t = math.sqrt(mag_max**2 / (vector_x**2 + vector_y**2))
+    # Return the meeting position
+    return x, y
 
-    # Pick the allowed t value is closest to the minimum value
-    if mag_min_distance > mag_max:
-        t = max_t
-    elif mag_min_distance < -mag_max:
-        t = -max_t
 
-    # Return the distance between the tip of the vector and the point
-    return point_distance((vector_x * t + vector_base_x, vector_y * t + vector_base_y), (point_x, point_y))
+def lines_within_range(vector_1, pos_1, vector_2, pos_2, radius):
+    """Return true if vectors pass within a given radius of one another, and false if not.
+
+    :param vector_1: The vector component of the first line
+    :param pos_1: The starting position of the first line
+    :param vector_2: The vector component of the second line
+    :param pos_2: The starting position of the second line
+    :param radius: The minimum radius which the lines must come equal to or closer than
+    :return: True if the lines pass within a given radius, and false if not
+    """
+
+    # Find the differences in the lines
+    v_diff = (vector_1[0] - vector_2[0], vector_1[1] - vector_2[1])
+    p_diff = (pos_1[0] - pos_2[0], pos_1[1] - pos_2[1])
+
+    # If the lines do not change distance over time
+    if v_diff == (0, 0):
+        return point_distance(pos_1, pos_2) <= radius
+
+    # For each vector, we then need to find if they cross this point.
+    # To do this, we clamp the meeting point magnitude between their starting point, end point.
+
+    # Find the t value for the vectors where they meet
+    t = -(p_diff[0] * v_diff[0] + p_diff[1] * v_diff[1]) / (v_diff[0]**2 + v_diff[1]**2)
+
+    old_t = t
+
+    # Clamp t between the start and end of the frame
+    t = clamp(0, 1, t)
+
+    test = point_distance((t * vector_1[0] + pos_1[0], t * vector_1[1] + pos_1[1]),
+                          (t * vector_2[0] + pos_2[0], t * vector_2[1] + pos_2[1])) < radius
+    if test:
+        print("testing")
+
+    # Return whether the distance at t is less than the radius
+    return point_distance((t * vector_1[0] + pos_1[0], t * vector_1[1] + pos_1[1]),
+                          (t * vector_2[0] + pos_2[0], t * vector_2[1] + pos_2[1])) < radius
