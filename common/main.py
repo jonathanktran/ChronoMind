@@ -6,15 +6,30 @@ from enemies import enemy_list
 from rounds import round_list
 import player
 import music
+import threading
+
 
 # Create the player
 player = player.Player(DISPLAY_WIDTH/2, DISPLAY_HEIGHT/2)
 
+# Create the music object
+audio = music.AudioFile('assets/music/Megalovania.wav')
+
+# Adjust the music to remove start offset
+audio.wf.setpos(6400)
+
 # Start the music
-pg.mixer.music.play()
+music_thread = threading.Thread(target=audio.play)
+
+# Play the music
+music_thread.start()
 
 # Run the game
-run(player, enemy_list, round_list)
+run(player, enemy_list, round_list, audio)
+
+# Stop the music thread
+audio.stop = True
+music_thread.join()
 
 # Close the window
 pg.quit()

@@ -2,12 +2,12 @@
 
 # region Constants
 
-MAX_TIME_MULT = 1
+MAX_TIME_MULT = 2
 MIN_TIME_MULT = 1/8
 
-DELTA_TIME_MULT = 3/4
+DELTA_TIME_MULT = 0.95
 
 # endregion
 
 # Set the starting time multiplier
-time_mult = MAX_TIME_MULT
+time_mult = 1

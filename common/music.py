@@ -1,10 +1,82 @@
 """This file contains music files and methods used to control them."""
 
-import pygame as pg
+import wave
+from pyaudio import PyAudio
+import numpy as np
 
 
-# Initialize the mixer
-pg.mixer.init()
+class AudioFile:
 
-# Load the current song
-pg.mixer.music.load('assets/music/Megalovania.wav')
+    # The number of samples to read per channel
+    chunk = 1600
+
+    def __init__(self, file):
+        """Initialize the Wave Read, and the Output Stream"""
+
+        # This is a flag used to stop the audio playback
+        self.stop = False
+
+        # The rate the audio is played at
+        self.rate = 1
+
+        # Get the wave file as an object
+        self.wf = wave.open(file, 'rb')
+
+        # Create the audio stream based on the wave file
+        self.p = PyAudio()
+        self.stream = self.p.open(
+            format=self.p.get_format_from_width(self.wf.getsampwidth()),
+            channels=self.wf.getnchannels(),
+            rate=int(self.wf.getframerate()),
+            output=True)
+
+    def set_rate(self, rate):
+        self.rate = rate
+
+    def play_chunk(self):
+        """Play a chunk of music at the given framerate"""
+
+        # Find the number of real samples
+        samples_per_channel = int(self.chunk * self.rate)
+
+        # Find the audio frames from both channels
+        real_tones = np.fromstring(self.wf.readframes(samples_per_channel), dtype=np.int16).astype(np.float)
+
+        # Check for the end of the file
+        if len(real_tones) == 0:
+            self.stop = True
+            return
+
+        # Find the sample positions for real tones
+        real_samples = np.array([i for i in range(samples_per_channel)])
+
+        # Find the sample positions for artificial tones
+        artificial_samples = np.linspace(0.0, samples_per_channel - 1.0, self.chunk)
+
+        # Find artificial tones produced at the desired sample times
+        channel_0 = np.interp(artificial_samples, real_samples, real_tones[::2]).astype(np.int16)
+        channel_1 = np.interp(artificial_samples, real_samples, real_tones[1::2]).astype(np.int16)
+
+        # Combine the two channels
+        artificial_tones = np.zeros(self.chunk*2, dtype=np.int16)
+        for i in range(int(self.chunk)):
+            artificial_tones[2 * i] = channel_0[i]
+            artificial_tones[2 * i + 1] = channel_1[i]
+
+        # Output the audio
+        self.stream.write(artificial_tones.tobytes())
+
+    def play(self):
+        """Play the entire audio file, or until the audio is stopped"""
+
+        # Play chunks until the audio is stopped
+        while not self.stop:
+
+            # Play another chunk
+            self.play_chunk()
+
+    def close(self):
+        """Close the Output Stream and the Pyaudio Object"""
+
+        self.stream.close()
+        self.p.terminate()

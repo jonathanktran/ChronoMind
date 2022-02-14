@@ -8,12 +8,13 @@ import math
 import timeline
 
 
-def run(player, enemies, rounds):
+def run(player, enemies, rounds, audio):
     """This function is a loop which runs a number of times per second, given by the FPS value in display.
 
     :param player: The player object
     :param enemies: A dictionary of all current enemies. The keys are the enemies' corresponding  id numbers.
     :param rounds: A dictionary of all current rounds. The keys rae the rounds' corresponding id numbers.
+    :param audio: An audio file used to play music.
     """
 
     # Store the current time
@@ -21,6 +22,9 @@ def run(player, enemies, rounds):
 
     # Start the first timeline, if there is any
     timeline.check(0, 1)
+
+    # Tick the clock once to remove delays
+    clock.tick(FPS)
 
     # Run the game until it is quit
     while True:
@@ -52,10 +56,12 @@ def run(player, enemies, rounds):
 
                 # Increase the time multiplier if the up arrow is pressed
                 elif event.key == pg.K_UP:
+                    audio.set_rate(min(time_control.time_mult / time_control.DELTA_TIME_MULT, time_control.MAX_TIME_MULT))
                     time_control.time_mult = min(time_control.time_mult / time_control.DELTA_TIME_MULT, time_control.MAX_TIME_MULT)
 
                 # Decrease the time multiplier if the down arrow is pressed
                 elif event.key == pg.K_DOWN:
+                    audio.set_rate(max(time_control.time_mult * time_control.DELTA_TIME_MULT, time_control.MIN_TIME_MULT))
                     time_control.time_mult = max(time_control.time_mult * time_control.DELTA_TIME_MULT, time_control.MIN_TIME_MULT)
 
         # endregion Events

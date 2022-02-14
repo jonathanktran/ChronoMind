@@ -85,15 +85,8 @@ def lines_within_range(vector_1, pos_1, vector_2, pos_2, radius):
     # Find the t value for the vectors where they meet
     t = -(p_diff[0] * v_diff[0] + p_diff[1] * v_diff[1]) / (v_diff[0]**2 + v_diff[1]**2)
 
-    old_t = t
-
     # Clamp t between the start and end of the frame
     t = clamp(0, 1, t)
-
-    test = point_distance((t * vector_1[0] + pos_1[0], t * vector_1[1] + pos_1[1]),
-                          (t * vector_2[0] + pos_2[0], t * vector_2[1] + pos_2[1])) < radius
-    if test:
-        print("testing")
 
     # Return whether the distance at t is less than the radius
     return point_distance((t * vector_1[0] + pos_1[0], t * vector_1[1] + pos_1[1]),
