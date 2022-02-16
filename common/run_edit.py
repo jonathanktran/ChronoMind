@@ -7,6 +7,7 @@ import time_control
 import math
 import timeline
 
+# I added this so I could access the add_attention file which is in the neurosky directory
 import sys
 sys.path.insert(0,"../neurosky")
 import add_attention
