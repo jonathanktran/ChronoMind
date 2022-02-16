@@ -57,34 +57,3 @@ def test_connection():
         time.sleep(0.01)
     
     disconnect()
-
-    
-
-# SPACE INVADERS PROJECT CODE BELOW FOR REFERENCE:
-
-
-# # Display attention value on screen
-#     self.attentionText = Text(FONT, 20, 'Attention', WHITE, 180, 5)
-
-# # Neuropy values
-#     self.attMathValue = Text(FONT, 25, str(self.neuropy.attention), GREEN, 480, 450)
-#     self.attMathValue.draw(self.screen)
-
-# # add non-zero value of attention and meditation
-#     if self.neuropy.attention > 0: # INSTEAD WE WILL FEED IN THE ATTENTION MEASURE RECORDED FROM HEADSET
-#         self.attPractice.append(self.neuropy.attention)
-        
-# # Check if att and med are above threshold value
-#     self.attHigh = True if self.neuropy.attention >= self.attThreshold else False
-    
-# # Draw neuropy text and value
-#     attColor = GREEN
-#     if self.attHigh:
-#         attColor = RED
-#     self.attentionText2 = Text(FONT, 20, str(self.neuropy.attention), attColor, 320, 5)
-#     self.attentionText2.draw(self.screen)
-#     self.attentionText.draw(self.screen)
-    
-# # Slow motion when attention is high
-#      if self.attHigh:
-#         # implement slowmo
