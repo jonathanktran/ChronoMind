@@ -1,8 +1,10 @@
 """This file is the main class, which runs the game."""
+# Might be a better way to get add_attention which is in a different directory
 import os
 import sys
 sys.path.insert(0,"../neurosky")
 import add_attention
+# Replace this path with wherever your python packages happen to be
 sys.path.insert(0, os.path.abspath("/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages"))
 
 from run_edit import run
