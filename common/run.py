@@ -6,6 +6,7 @@ import fonts
 import time_control
 import math
 import timeline
+import attention
 
 
 def run(player, enemies, rounds, audio):
@@ -28,6 +29,12 @@ def run(player, enemies, rounds, audio):
 
     # Run the game until it is quit
     while True:
+
+        # Get the current attention level
+        current_attention = attention.get_attention()
+
+        # Set the time multiplier based on the attention measure
+        time_control.time_mult = attention.get_time_mult(current_attention)
 
         # Wait until the FPS time has passed.
         dt = clock.tick(FPS) * time_control.time_mult
@@ -53,16 +60,6 @@ def run(player, enemies, rounds, audio):
                 # End the game if the escape key is pressed
                 if event.key == pg.K_ESCAPE:
                     return
-
-                # Increase the time multiplier if the up arrow is pressed
-                elif event.key == pg.K_UP:
-                    audio.set_rate(min(time_control.time_mult / time_control.DELTA_TIME_MULT, time_control.MAX_TIME_MULT))
-                    time_control.time_mult = min(time_control.time_mult / time_control.DELTA_TIME_MULT, time_control.MAX_TIME_MULT)
-
-                # Decrease the time multiplier if the down arrow is pressed
-                elif event.key == pg.K_DOWN:
-                    audio.set_rate(max(time_control.time_mult * time_control.DELTA_TIME_MULT, time_control.MIN_TIME_MULT))
-                    time_control.time_mult = max(time_control.time_mult * time_control.DELTA_TIME_MULT, time_control.MIN_TIME_MULT)
 
         # endregion Events
 
@@ -105,7 +102,11 @@ def run(player, enemies, rounds, audio):
 
         # Draw the time multiplier
         time_mult_surface = fonts.HUD.render('Time Multiplier: ' + str(time_control.time_mult), False, (0, 0, 0))
-        display.blit(time_mult_surface, (DISPLAY_WIDTH/2 - time_surface.get_width()/2, 32))
+        display.blit(time_mult_surface, (DISPLAY_WIDTH/2 - time_mult_surface.get_width()/2, 32))
+
+        # Draw the time multiplier
+        attention_surface = fonts.HUD.render('Attention: ' + str(current_attention), False, (0, 0, 0))
+        display.blit(attention_surface, (32, DISPLAY_HEIGHT - attention_surface.get_height() - 32))
 
         # endregion Draw the HUD
 

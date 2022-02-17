@@ -1,13 +1,6 @@
 """This file is the main class, which runs the game."""
-# Might be a better way to get add_attention which is in a different directory
-import os
-import sys
-sys.path.insert(0,"../neurosky")
-import add_attention
-# Replace this path with wherever your python packages happen to be
-sys.path.insert(0, os.path.abspath("/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages"))
 
-from run_edit import run
+from run_neurosky import run
 from display import *
 from enemies import enemy_list
 from rounds import round_list
@@ -15,8 +8,8 @@ import player
 import music
 import threading
 
-# Connect to Neurosky headset - specify "mac" or "windows"
-add_attention.connect("mac")
+
+
 
 # Create the player
 player = player.Player(DISPLAY_WIDTH/2, DISPLAY_HEIGHT/2)

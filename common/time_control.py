@@ -2,8 +2,8 @@
 
 # region Constants
 
-MAX_TIME_MULT = 2
-MIN_TIME_MULT = 1/8
+MAX_TIME_MULT = 1.2
+MIN_TIME_MULT = 0.8
 
 DELTA_TIME_MULT = 0.95
 

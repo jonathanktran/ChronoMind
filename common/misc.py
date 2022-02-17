@@ -91,3 +91,16 @@ def lines_within_range(vector_1, pos_1, vector_2, pos_2, radius):
     # Return whether the distance at t is less than the radius
     return point_distance((t * vector_1[0] + pos_1[0], t * vector_1[1] + pos_1[1]),
                           (t * vector_2[0] + pos_2[0], t * vector_2[1] + pos_2[1])) < radius
+
+
+def linear_map_range(from_low, from_high, to_low, to_high, x):
+    """Map a current linear space onto a new linear space
+    :param from_low: The low value of x
+    :param from_high: The high value of x
+    :param to_low: The value of y when given the low value of x
+    :param to_high: The value of y when given the high value of x
+    :param x: The input value in the 'from' bounds
+    """
+
+    return ((to_high - to_low) / (from_high - from_low)) * (x - from_low) + to_low
+

@@ -7,7 +7,12 @@ from rounds import round_list
 import player
 import music
 import threading
+import platform
+from neurosky import interface
 
+
+# Connect to Neurosky headset
+interface.connect(platform.system())
 
 # Create the player
 player = player.Player(DISPLAY_WIDTH/2, DISPLAY_HEIGHT/2)
