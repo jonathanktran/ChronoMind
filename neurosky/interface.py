@@ -1,13 +1,11 @@
-# Use the get_attention(headset) function in neurosky.py to get the current attention level
-# Will need to find a way to constantly update the attention level 
-# (something like an infinite loop, or constant calls to a function)
-
-# Potential variables to create: attention_threshold, attention (= get_attention(headset))
+"""This file contains methods for interfacing with the NeuroSky headset."""
 
 import neurosky.mindwave as mindwave
 import time
 
+# A reference to the NeuroSky headset
 headset = None
+
 
 def connect(version):
     """
@@ -45,14 +43,16 @@ def get_attention():
     Use this in the game code to print the attention measure.
     '''
     return headset.attention if headset is not None else 45
-    
+
+
 def disconnect():
     '''
     Code to disconnect from Neurosky.
     '''
     headset.stop()
     print("Stopped!")
-    
+
+
 def test_connection(): 
     '''
     Testing if code runs as expected.

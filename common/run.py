@@ -7,6 +7,7 @@ import time_control
 import math
 import timeline
 import attention
+from neurosky.interface import get_attention
 
 
 def run(player, enemies, rounds, audio):
@@ -31,10 +32,13 @@ def run(player, enemies, rounds, audio):
     while True:
 
         # Get the current attention level
-        current_attention = attention.get_attention()
+        current_attention = get_attention()
 
         # Set the time multiplier based on the attention measure
         time_control.time_mult = attention.get_time_mult(current_attention)
+
+        # Match the audio playback speed to the time multiplier
+        audio.set_rate(time_control.time_mult)
 
         # Wait until the FPS time has passed.
         dt = clock.tick(FPS) * time_control.time_mult
