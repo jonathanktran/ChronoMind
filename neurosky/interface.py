@@ -3,6 +3,7 @@
 import neurosky.mindwave as mindwave
 import time
 
+
 # A reference to the NeuroSky headset
 headset = None
 
@@ -34,8 +35,7 @@ def connect(version):
 
     # If the headset could not connect, keep the headset as None.
     except Exception:
-        pass
-
+        print("Could not Connect")
     
 def get_attention():
     '''

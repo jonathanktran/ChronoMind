@@ -5,7 +5,13 @@
 
 ## Setup
 
-In your console, run the following commands:
+In your console, run the following commands from within the ChronoMind directory:
+
+`pip install virtualenv`
+
+`virtualenv common\venv`
+
+`common\venv\Scripts\activate`
 
 `pip install pipwin`
 
