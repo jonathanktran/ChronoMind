@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import os
 import sys
 # Change path to wherever your python packages happen to be
 sys.path.insert(0, os.path.abspath("/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages"))
@@ -8,7 +9,6 @@ import select, serial, threading
 from pprint import pprint
 import time
 import datetime
-import os
 
 # Byte codes
 CONNECT              = b'\xc0'
