@@ -5,6 +5,8 @@
 
 ## Setup
 
+This code is written for python 3.9. Other versions may not work.
+
 In your console, run the following commands from within the ChronoMind directory:
 
 `pip install virtualenv`
