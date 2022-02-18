@@ -20,10 +20,10 @@ def connect(version):
     # Try connecting to the headset
     try:
         print("Connecting...")
-        if version == "mac":
-            headset = mindwave.Headset('/dev/tty.MindWaveMobile-SerialPo') # mac version
+        if version == "Windows":
+            headset = mindwave.Headset('COM6')  # windows version. set up COM port first (see video)
         else:
-            headset = mindwave.Headset('COM6') # windows version. set up COM port first (see video)
+            headset = mindwave.Headset('/dev/tty.MindWaveMobile-SerialPo')  # mac version
         print("Connected!")
 
         print("Starting...")
