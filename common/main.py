@@ -18,7 +18,7 @@ interface.connect(platform.system())
 player = player.Player(DISPLAY_WIDTH/2, DISPLAY_HEIGHT/2)
 
 # Create the music object
-audio = music.AudioFile('assets/music/Megalovania.wav')
+audio = music.AudioFile('../assets/music/Megalovania.wav')
 
 # Adjust the music to remove start offset
 audio.wf.setpos(6400)
