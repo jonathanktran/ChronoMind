@@ -76,9 +76,6 @@ def generate_question():
 def run_maths():
     """This function is a loop which runs a number of times per second, given by the FPS value in display."""
 
-    # Connect to Neurosky headset
-    interface.connect(platform.system())
-
     # Define object for collecting data
     data = []
 
