@@ -7,6 +7,9 @@ import math
 import time_control
 import random
 import color
+from neurosky import interface
+import platform
+import pandas as pd
 
 
 def generate_question():
@@ -73,6 +76,12 @@ def generate_question():
 def run_maths():
     """This function is a loop which runs a number of times per second, given by the FPS value in display."""
 
+    # Connect to Neurosky headset
+    interface.connect(platform.system())
+
+    # Define object for collecting data
+    data = []
+
     # Tick the clock once to remove delays
     clock.tick(FPS)
 
@@ -96,6 +105,16 @@ def run_maths():
 
         # Find the current time
         time -= dt
+
+        # Get the data values
+        waves = interface.get_waves()
+        raw = interface.get_raw()
+        attention = interface.get_attention()
+        blink = interface.get_blink()
+        row = [time, raw, attention, blink]  # row of data
+        for k, v in waves.items():
+            row.append(v)  # append wave power
+        data.append(row)  # append to large dataset
 
         # Generate a new question if the current one is done
         if question is None: question = generate_question()
@@ -189,4 +208,13 @@ def run_maths():
         pg.display.update()
 
         # If the timer is at 0, break the loop
-        if time <= 0: return False
+        if time <= 0:
+            # Creating dataframe
+            # Wave data format:
+            # ['delta', 'theta', 'low-alpha', 'high-alpha',
+            # 'low-beta', 'high-beta', 'low-gamma', 'mid-gamma']
+            df = pd.DataFrame(data, columns=['seconds', 'raw_value', 'attention', 'blink', 'delta', 'theta', 'low-alpha', 'high-alpha', 'low-beta', 'high-beta', 'low-gamma', 'mid-gamma'])
+
+            # Saving to data directory
+            df.to_csv("../neurosky/data/calibration.csv")
+            return False
