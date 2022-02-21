@@ -12,6 +12,13 @@ import platform
 import pandas as pd
 
 
+# region Constants
+
+MAX_TIME = 6000
+
+# endregion Constants
+
+
 def generate_question():
     """This function generates a new maths question, and it's answer. Each operand has a maximum magnitude, nor
     can the total magnitude of the operands cannot exceed a maximum.
@@ -76,14 +83,14 @@ def generate_question():
 def run_maths():
     """This function is a loop which runs a number of times per second, given by the FPS value in display."""
 
-    # Define object for collecting data
+    # A list of data samples taken by the headset
     data = []
 
     # Tick the clock once to remove delays
     clock.tick(FPS)
 
     # The current time left to answer questions
-    time = 60000
+    time = MAX_TIME
 
     # Generate a starting maths question
     question = generate_question()
@@ -103,16 +110,8 @@ def run_maths():
         # Find the current time
         time -= dt
 
-        # Get the data values
-        if interface.headset != None: # if connected
-            waves = interface.get_waves()
-            raw = interface.get_raw()
-            attention = interface.get_attention()
-            blink = interface.get_blink()
-            row = [time, raw, attention, blink]  # row of data
-            for k, v in waves.items():
-                row.append(v)  # append wave power
-            data.append(row)  # append to large dataset
+        # Add this frame of data to the list of data for the entire session
+        data.append(interface.get_values((MAX_TIME - time) / 1000))
 
         # Generate a new question if the current one is done
         if question is None: question = generate_question()
@@ -167,12 +166,6 @@ def run_maths():
 
         #endregion Events
 
-        # region Check Buttons
-
-
-
-        # endregion Check Buttons
-
         # region Drawing
 
         # Draw the background
@@ -207,13 +200,9 @@ def run_maths():
 
         # If the timer is at 0, break the loop
         if time <= 0:
-            if interface.headset != None: # if connected
-                # Creating dataframe
-                # Wave data format:
-                # ['delta', 'theta', 'low-alpha', 'high-alpha',
-                # 'low-beta', 'high-beta', 'low-gamma', 'mid-gamma']
-                df = pd.DataFrame(data, columns=['seconds', 'raw_value', 'attention', 'blink', 'delta', 'theta', 'low-alpha', 'high-alpha', 'low-beta', 'high-beta', 'low-gamma', 'mid-gamma'])
 
-                # Saving to data directory
-                df.to_csv("../neurosky/data/calibration.csv")
+            # Write the data to a csv file
+            interface.to_csv(data)
+
+            # Exit the maths portion
             return False

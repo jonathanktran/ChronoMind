@@ -1,4 +1,4 @@
-,seconds,raw_value,attention,blink,delta,theta,low-alpha,high-alpha,low-beta,high-beta,low-gamma,mid-gamma
+index,seconds,raw_value,attention,blink,delta,theta,low-alpha,high-alpha,low-beta,high-beta,low-gamma,mid-gamma
 0,1.4066696166992188e-05,107,61,0,640060,54693,3826,14338,5469,12495,2964,1234
 1,0.010589838027954102,49,61,0,640060,54693,3826,14338,5469,12495,2964,1234
 2,0.022530078887939453,-8,61,0,640060,54693,3826,14338,5469,12495,2964,1234
