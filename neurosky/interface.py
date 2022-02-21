@@ -2,10 +2,14 @@
 
 import neurosky.mindwave as mindwave
 import time
+import pandas as pd
 
 
 # A reference to the NeuroSky headset
 headset = None
+
+# Read the recorded attention
+recorded_headset = pd.read_csv("../neurosky/game_1_min.csv")
 
 
 def connect(version):
@@ -36,27 +40,36 @@ def connect(version):
     # If the headset could not connect, keep the headset as None.
     except Exception:
         print("Could not Connect")
-    
-def get_attention():
-    '''
-    Obtain the current Neurosky attention level measure.
-    Use this in the game code to print the attention measure.
-    '''
-    return headset.attention if headset is not None else 45
+
+
+def get_attention(time):
+    """ The function returns the current attention level measured by the neurosky.
+    If the neurosky is not connected, a recording of brain activity is used instead. This recording lasts one minute,
+    and loops after each minute passes.
+
+    :param time: The current time in seconds
+    :return attention: The current attention of the headset or the recording, as an integer.
+    """
+
+    # If the headset is connected
+    if headset is not None:
+        return headset.attention
+
+    # If the headset is not connected, return the recorded value for the given time
+    else:
+        return recorded_headset.iloc[(recorded_headset['seconds']-(time % 60)).abs().argsort()[0]]["attention"]
 
 
 def disconnect():
-    '''
-    Code to disconnect from Neurosky.
-    '''
-    headset.stop()
+    """This function disconnects the headset."""
+
+    if headset is not None: headset.stop()
     print("Stopped!")
 
 
-def test_connection(): 
-    '''
-    Testing if code runs as expected.
-    '''
+def test_connection():
+    """This function is for testing purposes. It tests whether the headset connection works as expected."""
+
     connect("mac")
     
     t_end = time.time() + 10 # run for 10 seconds

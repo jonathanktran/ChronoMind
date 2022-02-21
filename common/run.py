@@ -22,6 +22,9 @@ def run(player, enemies, rounds, audio):
     # Store the current time
     time = 0
 
+    # Store the real time
+    realtime = 0
+
     # Start the first timeline, if there is any
     timeline.check(0, 1)
 
@@ -32,7 +35,7 @@ def run(player, enemies, rounds, audio):
     while True:
 
         # Get the current attention level
-        current_attention = get_attention()
+        current_attention = get_attention(realtime / 1000)
 
         # Set the time multiplier based on the attention measure
         time_control.time_mult = attention.get_time_mult(current_attention)
@@ -40,8 +43,14 @@ def run(player, enemies, rounds, audio):
         # Match the audio playback speed to the time multiplier
         audio.set_rate(time_control.time_mult)
 
-        # Wait until the FPS time has passed.
-        dt = clock.tick(FPS) * time_control.time_mult
+        # Wait until the FPS time has passed, and store that time
+        dt = clock.tick(FPS)
+
+        # Store the real amount of time that has passed
+        realtime += dt
+
+        # Adjust the time by the time multiplier
+        dt = dt * time_control.time_mult
 
         # Find the current time
         time += dt
@@ -101,7 +110,7 @@ def run(player, enemies, rounds, audio):
         display.blit(lives_surface, (32, 32))
 
         # Draw the time
-        time_surface = fonts.HUD.render('Time: ' + str(math.floor(time/1000)), False, (0, 0, 0))
+        time_surface = fonts.HUD.render('Time: ' + str(math.floor(realtime/1000)), False, (0, 0, 0))
         display.blit(time_surface, (DISPLAY_WIDTH - time_surface.get_width() - 32, 32))
 
         # Draw the time multiplier

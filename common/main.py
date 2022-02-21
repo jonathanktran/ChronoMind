@@ -36,5 +36,8 @@ run(player, enemy_list, round_list, audio)
 audio.stop = True
 music_thread.join()
 
+# Disconnect the headset
+interface.disconnect()
+
 # Close the window
 pg.quit()
