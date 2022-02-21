@@ -56,14 +56,14 @@ def run(player, enemies, rounds, audio):
 
             # If the game is quit, end the game
             if event.type == pg.QUIT:
-                return
+                return True
 
             # Check for keyboard presses
             if event.type == pg.KEYDOWN:
 
                 # End the game if the escape key is pressed
                 if event.key == pg.K_ESCAPE:
-                    return
+                    return True
 
         # endregion Events
 
