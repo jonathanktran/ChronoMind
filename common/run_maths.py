@@ -7,6 +7,16 @@ import math
 import time_control
 import random
 import color
+from neurosky import interface
+import platform
+import pandas as pd
+
+
+# region Constants
+
+MAX_TIME = 6000
+
+# endregion Constants
 
 
 def generate_question():
@@ -73,11 +83,14 @@ def generate_question():
 def run_maths():
     """This function is a loop which runs a number of times per second, given by the FPS value in display."""
 
+    # A list of data samples taken by the headset
+    data = []
+
     # Tick the clock once to remove delays
     clock.tick(FPS)
 
     # The current time left to answer questions
-    time = 60000
+    time = MAX_TIME
 
     # Generate a starting maths question
     question = generate_question()
@@ -96,6 +109,9 @@ def run_maths():
 
         # Find the current time
         time -= dt
+
+        # Add this frame of data to the list of data for the entire session
+        data.append(interface.get_values((MAX_TIME - time) / 1000))
 
         # Generate a new question if the current one is done
         if question is None: question = generate_question()
@@ -150,12 +166,6 @@ def run_maths():
 
         #endregion Events
 
-        # region Check Buttons
-
-
-
-        # endregion Check Buttons
-
         # region Drawing
 
         # Draw the background
@@ -189,4 +199,10 @@ def run_maths():
         pg.display.update()
 
         # If the timer is at 0, break the loop
-        if time <= 0: return False
+        if time <= 0:
+
+            # Write the data to a csv file
+            interface.to_csv(data)
+
+            # Exit the maths portion
+            return False

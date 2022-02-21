@@ -32,7 +32,7 @@ def run(player, enemies, rounds, audio):
     while True:
 
         # Get the current attention level
-        current_attention = get_attention()
+        current_attention = get_attention(time / 1000)
 
         # Set the time multiplier based on the attention measure
         time_control.time_mult = attention.get_time_mult(current_attention)
