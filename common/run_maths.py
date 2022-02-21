@@ -104,14 +104,15 @@ def run_maths():
         time -= dt
 
         # Get the data values
-        waves = interface.get_waves()
-        raw = interface.get_raw()
-        attention = interface.get_attention()
-        blink = interface.get_blink()
-        row = [time, raw, attention, blink]  # row of data
-        for k, v in waves.items():
-            row.append(v)  # append wave power
-        data.append(row)  # append to large dataset
+        if interface.headset != None: # if connected
+            waves = interface.get_waves()
+            raw = interface.get_raw()
+            attention = interface.get_attention()
+            blink = interface.get_blink()
+            row = [time, raw, attention, blink]  # row of data
+            for k, v in waves.items():
+                row.append(v)  # append wave power
+            data.append(row)  # append to large dataset
 
         # Generate a new question if the current one is done
         if question is None: question = generate_question()
@@ -206,12 +207,13 @@ def run_maths():
 
         # If the timer is at 0, break the loop
         if time <= 0:
-            # Creating dataframe
-            # Wave data format:
-            # ['delta', 'theta', 'low-alpha', 'high-alpha',
-            # 'low-beta', 'high-beta', 'low-gamma', 'mid-gamma']
-            df = pd.DataFrame(data, columns=['seconds', 'raw_value', 'attention', 'blink', 'delta', 'theta', 'low-alpha', 'high-alpha', 'low-beta', 'high-beta', 'low-gamma', 'mid-gamma'])
+            if interface.headset != None: # if connected
+                # Creating dataframe
+                # Wave data format:
+                # ['delta', 'theta', 'low-alpha', 'high-alpha',
+                # 'low-beta', 'high-beta', 'low-gamma', 'mid-gamma']
+                df = pd.DataFrame(data, columns=['seconds', 'raw_value', 'attention', 'blink', 'delta', 'theta', 'low-alpha', 'high-alpha', 'low-beta', 'high-beta', 'low-gamma', 'mid-gamma'])
 
-            # Saving to data directory
-            df.to_csv("../neurosky/data/calibration.csv")
+                # Saving to data directory
+                df.to_csv("../neurosky/data/calibration.csv")
             return False
