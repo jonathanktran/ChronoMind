@@ -156,12 +156,12 @@ def get_values(time):
     """
 
     # If the headset is connected, return a list of values in the following form:
-    # ['raw_value', 'attention', 'blink',
+    # ['seconds', 'raw_value', 'attention', 'blink',
     # 'delta', 'theta', 'low-alpha', 'high-alpha', 'low-beta', 'high-beta', 'low-gamma', 'mid-gamma']
     if headset is not None:
 
         # Create a list of neurosky pre-made measures
-        measure_list = [headset.raw_value, headset.attention, headset.blink]
+        measure_list = [time, headset.raw_value, headset.attention, headset.blink]
 
         # Append each wave band to the list
         for k, v in headset.waves.items():
