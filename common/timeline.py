@@ -1,10 +1,13 @@
 """The timeline a dictionary of enemies or rounds, who's keys are frames.
 The enemies and rounds are instantiated, but not added to their respective lists."""
+from numpy.random import randint
 
 from display import DISPLAY_WIDTH, DISPLAY_HEIGHT
 import enemies
 import rounds
 from math import floor
+import random
+
 
 
 # The timeline dictionary
@@ -110,14 +113,46 @@ def check(time, dt):
 # endregion Functionality
 
 # region Timeline Creation
+#add(0, rounds.Sprinkler(enemies.Bullet, MIDDLE_LEFT, FAST_HORIZONTAL, DIR_RIGHT, -45, 45, 90, BLUE, 8, 2000/8))
+#add(1000, rounds.Sprinkler(enemies.Bullet, MIDDLE_RIGHT, FAST_HORIZONTAL, DIR_LEFT, DIR_BOTTOM_LEFT, DIR_TOP_LEFT, 90, BLUE, 8, 2000/8))
+#add(3000, rounds.Sprinkler(enemies.Bullet, MIDDLE_TOP, FAST_VERTICAL, DIR_DOWN, DIR_BOTTOM_RIGHT, DIR_BOTTOM_LEFT, 90, BLUE, 8, 2000/8))
+#add(5000, rounds.Sprinkler(enemies.Bullet, MIDDLE_BOTTOM, FAST_VERTICAL, DIR_UP, DIR_TOP_LEFT, DIR_TOP_RIGHT, 90, BLUE, 8, 2000/8))
+                            #(self, enemy, position, vel, dir, lower_dir, upper_dir, dir_spd, color, enemy_count, dt)
+#speed_vectors=[FAST_RIGHT,FAST_LEFT,FAST_UP,FAST_DOWN,SLOW_RIGHT,SLOW_LEFT,SLOW_UP,SLOW_DOWN]
+#region_ref=[MIDDLE_RIGHT,MIDDLE_BOTTOM,MIDDLE_LEFT,MIDDLE_TOP]
 
-add(0, enemies.Bullet(MIDDLE_LEFT, SLOW_RIGHT, GREEN))
-add(2000, enemies.Bullet(MIDDLE_RIGHT, SLOW_LEFT, GREEN))
-add(4000, enemies.Bullet(MIDDLE_TOP, SLOW_DOWN, GREEN))
-add(6000, enemies.Bullet(MIDDLE_BOTTOM, SLOW_UP, GREEN))
-add(8000, rounds.Sprinkler(enemies.Bullet, MIDDLE_LEFT, FAST_HORIZONTAL, DIR_RIGHT, -45, 45, 90, BLUE, 8, 2000/8))
-add(10000, rounds.Sprinkler(enemies.Bullet, MIDDLE_RIGHT, FAST_HORIZONTAL, DIR_LEFT, DIR_BOTTOM_LEFT, DIR_TOP_LEFT, 90, BLUE, 8, 2000/8))
-add(12000, rounds.Sprinkler(enemies.Bullet, MIDDLE_TOP, FAST_VERTICAL, DIR_DOWN, DIR_BOTTOM_RIGHT, DIR_BOTTOM_LEFT, 90, BLUE, 8, 2000/8))
-add(14000, rounds.Sprinkler(enemies.Bullet, MIDDLE_BOTTOM, FAST_VERTICAL, DIR_UP, DIR_TOP_LEFT, DIR_TOP_RIGHT, 90, BLUE, 8, 2000/8))
+#lv. 1
+plausible_slow={MIDDLE_TOP:SLOW_DOWN,MIDDLE_LEFT:SLOW_RIGHT,MIDDLE_BOTTOM:SLOW_UP,MIDDLE_RIGHT:SLOW_LEFT}
+#lv. 2
+plausible_fast={MIDDLE_TOP:FAST_DOWN,MIDDLE_LEFT:FAST_RIGHT,MIDDLE_BOTTOM:FAST_UP,MIDDLE_RIGHT:FAST_LEFT}
+#lv. 3
+plausible_speed=[rounds.Sprinkler(enemies.Bullet, MIDDLE_LEFT, FAST_HORIZONTAL, DIR_RIGHT, -45, 45, 90, RED, 8, 2000/8),
+                 rounds.Sprinkler(enemies.Bullet, MIDDLE_RIGHT, FAST_HORIZONTAL, DIR_LEFT, DIR_BOTTOM_LEFT, DIR_TOP_LEFT, 90, RED, 8, 2000/8),
+                 rounds.Sprinkler(enemies.Bullet, MIDDLE_TOP, FAST_VERTICAL, DIR_DOWN, DIR_BOTTOM_RIGHT, DIR_BOTTOM_LEFT, 90, RED, 8, 2000/8),
+                 rounds.Sprinkler(enemies.Bullet, MIDDLE_BOTTOM, FAST_VERTICAL, DIR_UP, DIR_TOP_LEFT, DIR_TOP_RIGHT, 90, RED, 2000/8)]
+
+x=0
+for x in range(0,60000,2000):
+    #lv. 1
+    if x<8000:
+        key=random.choice(list(plausible_slow))
+        add(x, enemies.Bullet(key,plausible_slow[key],GREEN))
+    #lv. 2
+    if x<16000 and x>=8000:
+        key=random.choice(list(plausible_fast))
+        add(x, enemies.Bullet(key,plausible_fast[key],BLUE))
+        if x>14000:
+            add(x+1000, enemies.Bullet(key, plausible_fast[key], BLUE))
+    #lv. 3
+    if x<40000 and x>=16000:
+        num=randint(0,3)
+        add(x, plausible_speed[num])
+    #lv. 4
+    if x < 60000 and x >= 40000:
+        num = randint(0, 3)
+        add(x, plausible_speed[num])
+        add(x+1000, plausible_speed[num])
+        if x>45000:
+            add(x+500, plausible_speed[num])
 
 # endregion Timeline Creation
