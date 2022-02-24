@@ -14,7 +14,7 @@ import pandas as pd
 
 # region Constants
 
-MAX_TIME = 6000
+MAX_TIME = 60000
 
 # endregion Constants
 
