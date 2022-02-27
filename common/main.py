@@ -1,6 +1,7 @@
 """This file is the main class, which runs the game."""
 
 from run import run
+from run_maths import run_maths
 from display import *
 from enemies import enemy_list
 from rounds import round_list
@@ -23,18 +24,24 @@ audio = music.AudioFile('../assets/music/Megalovania.wav')
 # Adjust the music to remove start offset
 audio.wf.setpos(6400)
 
-# Start the music
+# This variable tracks whether the game has been told to stop
+stop = False
+
+# Create the music thread
 music_thread = threading.Thread(target=audio.play)
 
+# Run the upper-limit attention calibration
+stop = run_maths()
+
 # Play the music
-music_thread.start()
+if not stop: music_thread.start()
 
 # Run the game
-run(player, enemy_list, round_list, audio)
+if not stop: stop = run(player, enemy_list, round_list, audio)
 
 # Stop the music thread
 audio.stop = True
-music_thread.join()
+if not stop and music_thread.is_alive(): music_thread.join()
 
 # Disconnect the headset
 interface.disconnect()
