@@ -35,7 +35,7 @@ music_thread = threading.Thread(target=audio.play)
 stop = run_homescreen()
 
 # Run the upper-limit attention calibration
-if not stop: stop = run_maths()
+#if not stop: stop = run_maths()
 
 # Play the music
 if not stop: music_thread.start()

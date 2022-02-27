@@ -75,7 +75,7 @@ def run(player, enemies, rounds, audio):
                 attention_measurements.append((current_attention, realtime))
 
         # Extrapolate the attention value so that it meets the most recent attention measure 500ms after reading it.
-        current_attention = attention.get_extrapolated_attention(
+        current_attention = attention.get_interpolated_attention(
             attention_measurements[len(attention_measurements) - 1][0],
             extrapolated_attention,
             attention_measurements[len(attention_measurements) - 1][1],
