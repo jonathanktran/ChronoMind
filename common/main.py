@@ -43,5 +43,8 @@ if not stop: stop = run(player, enemy_list, round_list, audio)
 audio.stop = True
 if not stop and music_thread.is_alive(): music_thread.join()
 
+# Disconnect the headset
+interface.disconnect()
+
 # Close the window
 pg.quit()
