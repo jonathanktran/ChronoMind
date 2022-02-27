@@ -102,9 +102,7 @@ class OfflineHeadset:
 
 
 class Headset(object):
-    """
-    A MindWave Headset
-    """
+    """A MindWave Headset"""
 
     class DongleListener(threading.Thread):
         """

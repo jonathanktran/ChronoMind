@@ -1,6 +1,5 @@
 """This file contains the run method, which runs the game"""
 
-
 from display import *
 import fonts
 import time_control
@@ -22,6 +21,18 @@ def run(player, enemies, rounds, audio):
     # Store the current time
     time = 0
 
+    # Store the real time
+    realtime = 0
+
+    # Store the list of attention measurements and their times (attention, time)
+    attention_measurements = [(get_attention(0), -1500), (get_attention(0), -500)]
+
+    # Store the extrapolated attention values at the time of the most recent attention measure
+    extrapolated_attention = attention_measurements[0][0]
+
+    # Store the current attention
+    current_attention = attention_measurements[0][0]
+
     # Start the first timeline, if there is any
     timeline.check(0, 1)
 
@@ -31,8 +42,47 @@ def run(player, enemies, rounds, audio):
     # Run the game until it is quit
     while True:
 
-        # Get the current attention level
-        current_attention = get_attention(time / 1000)
+        # Wait until the FPS time has passed, and store that time
+        dt = clock.tick(FPS)
+
+        # Store the real amount of time that has passed
+        realtime += dt
+
+        # region Attention
+
+        # Find the latest attention measurement
+        latest_attention_measure = attention_measurements[len(attention_measurements)-1]
+
+        # If more than 900 ms have passed, check the attention measure for updates
+        if realtime - latest_attention_measure[1] > 900:
+
+            # If the time difference is greater than 600 ms, assume that the latest measure is the same as the old one
+            if realtime - latest_attention_measure[1] > 1100:
+
+                # Add a new latest attention measure
+                attention_measurements.append((latest_attention_measure[0], latest_attention_measure[1] + 1000))
+
+                # Store the current attention for extrapolation
+                extrapolated_attention = current_attention
+
+            # Get the current attention
+            current_attention = get_attention(realtime / 1000)
+
+            # If the current attention is different, update the latest attention measure
+            if current_attention != latest_attention_measure[0]:
+
+                # Add a new latest attention measure
+                attention_measurements.append((current_attention, realtime))
+
+        # Extrapolate the attention value so that it meets the most recent attention measure 500ms after reading it.
+        current_attention = attention.get_extrapolated_attention(
+            attention_measurements[len(attention_measurements) - 1][0],
+            extrapolated_attention,
+            attention_measurements[len(attention_measurements) - 1][1],
+            realtime
+        )
+
+        # endregion Attention
 
         # Set the time multiplier based on the attention measure
         time_control.time_mult = attention.get_time_mult(current_attention)
@@ -40,8 +90,8 @@ def run(player, enemies, rounds, audio):
         # Match the audio playback speed to the time multiplier
         audio.set_rate(time_control.time_mult)
 
-        # Wait until the FPS time has passed.
-        dt = clock.tick(FPS) * time_control.time_mult
+        # Adjust the time by the time multiplier
+        dt = dt * time_control.time_mult
 
         # Find the current time
         time += dt

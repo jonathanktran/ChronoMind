@@ -25,4 +25,22 @@ def get_time_mult(attention):
     return linear_map_range(MIN_ATTENTION, MAX_ATTENTION, time_control.MAX_TIME_MULT, time_control.MIN_TIME_MULT,
                             clamp(MIN_ATTENTION, MAX_ATTENTION, attention))
 
+
+def get_interpolated_attention(attention_1, attention_2, time_1, current_time):
+    """This function returns a linear interpolation of the attention measure, so that the attention measure is at the
+    most recently read value by the time the next attention measure is read.
+
+    :param attention_1: The most recent attention measure
+    :param attention_2: The second most recent attention measure
+    :param time_1: The time that attention_1 was measured at
+    :param current_time: The current time
+    :returns attention: An estimated attention extrapolated from the previous two attention measures.
+    """
+
+    # Find the slope between the two attention measures
+    slope = (attention_1 - attention_2) / 1000
+
+    # Return the estimated attentionA
+    return (current_time - time_1) * slope + attention_2
+
 # endregion Functionality

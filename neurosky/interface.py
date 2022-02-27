@@ -33,13 +33,13 @@ def connect(version):
         print("Starting...")
 
         # Wait for the headset to steady down
-        while (headset.poor_signal > 5 or headset.attention == 0):
+        while headset.poor_signal > 5 or headset.attention == 0:
             time.sleep(0.1)
         print('Started!')
 
     # If the headset could not connect, keep the headset as None.
     except Exception:
-        print("Could not Connect")
+        print("Could not Connect, using recorded NeuroSky values.")
 
 
 def nearest_recorded_sample(time):
@@ -129,7 +129,7 @@ def disconnect():
     '''
     Code to disconnect from Neurosky.
     '''
-    headset.stop()
+    if headset is not None: headset.stop()
     print("Stopped!")
 
 

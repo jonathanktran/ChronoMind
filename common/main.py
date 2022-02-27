@@ -2,6 +2,7 @@
 
 from run import run
 from run_maths import run_maths
+from run_homescreen import run_homescreen
 from display import *
 from enemies import enemy_list
 from rounds import round_list
@@ -30,8 +31,11 @@ stop = False
 # Create the music thread
 music_thread = threading.Thread(target=audio.play)
 
+# Run the main menu
+stop = run_homescreen()
+
 # Run the upper-limit attention calibration
-stop = run_maths()
+if not stop: stop = run_maths()
 
 # Play the music
 if not stop: music_thread.start()
