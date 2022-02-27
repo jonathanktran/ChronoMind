@@ -1,5 +1,6 @@
 """This file contains the run method, which runs the game"""
 
+import builtins
 from display import *
 import fonts
 import time_control
@@ -155,11 +156,11 @@ def run(player, enemies, rounds, audio):
         display.blit(time_surface, (DISPLAY_WIDTH - time_surface.get_width() - 32, 32))
 
         # Draw the time multiplier
-        time_mult_surface = fonts.HUD.render('Time Multiplier: ' + str(time_control.time_mult), False, (0, 0, 0))
+        time_mult_surface = fonts.HUD.render('Time Multiplier: ' + "{:.2f}".format(time_control.time_mult), False, (0, 0, 0))
         display.blit(time_mult_surface, (DISPLAY_WIDTH/2 - time_mult_surface.get_width()/2, 32))
 
         # Draw the time multiplier
-        attention_surface = fonts.HUD.render('Attention: ' + str(current_attention), False, (0, 0, 0))
+        attention_surface = fonts.HUD.render('Attention: ' + str(builtins.round(current_attention)), False, (0, 0, 0))
         display.blit(attention_surface, (32, DISPLAY_HEIGHT - attention_surface.get_height() - 32))
 
         # endregion Draw the HUD

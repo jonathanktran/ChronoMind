@@ -6,8 +6,8 @@ import time_control
 
 # region Constants
 
-MAX_ATTENTION = 60
-MIN_ATTENTION = 30
+MAX_ATTENTION = 100
+MIN_ATTENTION = 20
 
 # endregion Constants
 
