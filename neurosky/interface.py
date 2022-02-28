@@ -156,7 +156,7 @@ def get_values(time):
     """
 
     # If the headset is connected, return a list of values in the following form:
-    # ['seconds', 'raw_value', 'attention', 'blink',
+    # ['seconds', 'raw_value', 'attention', 'our-attention', 'blink',
     # 'delta', 'theta', 'low-alpha', 'high-alpha', 'low-beta', 'high-beta', 'low-gamma', 'mid-gamma']
     if headset is not None:
 
@@ -166,6 +166,11 @@ def get_values(time):
         # Append each wave band to the list
         for k, v in headset.waves.items():
             measure_list.append(v)
+        
+        # Calculate our attention ratio (gamma/alpha) and insert into list
+        gamma = measure_list[11]
+        alpha = (measure_list[6] + measure_list[7]) / 2
+        measure_list.insert(3, gamma/alpha)
 
         # Return the list of measures and waves
         return measure_list
@@ -182,9 +187,9 @@ def to_csv(data):
     """
 
     # Create a dataframe from the data with the given form:
-    # ['seconds', 'raw_value', 'attention', 'blink',
+    # ['seconds', 'raw_value', 'attention', 'our-attention', 'blink',
     # 'delta', 'theta', 'low-alpha', 'high-alpha', 'low-beta', 'high-beta', 'low-gamma', 'mid-gamma']
-    df = pd.DataFrame(data, columns=['seconds', 'raw_value', 'attention', 'blink', 'delta', 'theta', 'low-alpha',
+    df = pd.DataFrame(data, columns=['seconds', 'raw_value', 'attention', 'our-attention', 'blink', 'delta', 'theta', 'low-alpha',
                                      'high-alpha', 'low-beta', 'high-beta', 'low-gamma', 'mid-gamma'])
 
     # Write the dataframe to a file
