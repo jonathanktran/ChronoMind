@@ -11,3 +11,6 @@ HUD = pg.font.SysFont('Comic Sans MS', 30)
 
 # The font used to display the maths letters
 MATH = pg.font.SysFont('Comic Sans MS', 60)
+
+# test
+HOME = pg.font.SysFont('Courier New', 80)

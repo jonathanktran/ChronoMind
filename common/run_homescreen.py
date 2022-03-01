@@ -14,7 +14,10 @@ def run_homescreen():
     # Create a list of buttons
     buttons = [
         Button((DISPLAY_WIDTH/2, DISPLAY_HEIGHT/2), (DISPLAY_WIDTH/8, DISPLAY_HEIGHT/8), color.RED,
-               fonts.HUD.render('Play', False, color.BLACK))
+               fonts.HUD.render('Play', False, color.BLACK)),
+
+        Button((DISPLAY_WIDTH / 2, DISPLAY_HEIGHT * 3/4), (DISPLAY_WIDTH / 8, DISPLAY_HEIGHT / 8), color.BLUE,
+               fonts.HOME.render('Test', False, color.BLACK))
     ]
 
     # Run the game until it is quit
