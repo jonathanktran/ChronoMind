@@ -3,20 +3,19 @@
 import builtins
 from display import *
 import fonts
-import time_control
 import math
 import timeline
 import attention
-from neurosky.interface import get_attention
+import neurosky.interface as interface
 
 
-def run(player, enemies, rounds, audio):
+def run(player, enemies, rounds, calibration_setting):
     """This function is a loop which runs a number of times per second, given by the FPS value in display.
 
     :param player: The player object
     :param enemies: A dictionary of all current enemies. The keys are the enemies' corresponding  id numbers.
     :param rounds: A dictionary of all current rounds. The keys rae the rounds' corresponding id numbers.
-    :param audio: An audio file used to play music.
+    :param calibration_setting: The settings used to calibrate the attention bounds.
     """
 
     # Store the current time
@@ -26,7 +25,7 @@ def run(player, enemies, rounds, audio):
     realtime = 0
 
     # Store the list of attention measurements and their times (attention, time)
-    attention_measurements = [(get_attention(0), -1500), (get_attention(0), -500)]
+    attention_measurements = [(interface.get_attention(0), -1500), (interface.get_attention(0), -500)]
 
     # Store the extrapolated attention values at the time of the most recent attention measure
     extrapolated_attention = attention_measurements[0][0]
@@ -36,6 +35,12 @@ def run(player, enemies, rounds, audio):
 
     # Start the first timeline, if there is any
     timeline.check(0, 1)
+
+    # Set the attention to read from the calibration file if the headset is not connected
+    interface.set_file("../neurosky/data/game_1_min.csv")
+
+    # The current time multiplier
+    time_mult = 1
 
     # Tick the clock once to remove delays
     clock.tick(FPS)
@@ -67,7 +72,7 @@ def run(player, enemies, rounds, audio):
                 extrapolated_attention = current_attention
 
             # Get the current attention
-            current_attention = get_attention(realtime / 1000)
+            current_attention = interface.get_attention(realtime / 1000)
 
             # If the current attention is different, update the latest attention measure
             if current_attention != latest_attention_measure[0]:
@@ -86,13 +91,10 @@ def run(player, enemies, rounds, audio):
         # endregion Attention
 
         # Set the time multiplier based on the attention measure
-        time_control.time_mult = attention.get_time_mult(current_attention)
-
-        # Match the audio playback speed to the time multiplier
-        audio.set_rate(time_control.time_mult)
+        time_mult = attention.get_time_mult(current_attention, calibration_setting)
 
         # Adjust the time by the time multiplier
-        dt = dt * time_control.time_mult
+        dt = dt * time_mult
 
         # Find the current time
         time += dt
@@ -156,7 +158,7 @@ def run(player, enemies, rounds, audio):
         display.blit(time_surface, (DISPLAY_WIDTH - time_surface.get_width() - 32, 32))
 
         # Draw the time multiplier
-        time_mult_surface = fonts.HUD.render('Time Multiplier: ' + "{:.2f}".format(time_control.time_mult), False, (0, 0, 0))
+        time_mult_surface = fonts.HUD.render('Time Multiplier: ' + "{:.2f}".format(time_mult), False, (0, 0, 0))
         display.blit(time_mult_surface, (DISPLAY_WIDTH/2 - time_mult_surface.get_width()/2, 32))
 
         # Draw the time multiplier

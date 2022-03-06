@@ -11,7 +11,10 @@ import music
 import threading
 import platform
 from neurosky import interface
+import attention
 
+
+# region Initialization
 
 # Connect to Neurosky headset
 interface.connect(platform.system())
@@ -21,6 +24,7 @@ player = player.Player(DISPLAY_WIDTH/2, DISPLAY_HEIGHT/2)
 
 # Create the music object
 audio = music.AudioFile('../assets/music/Megalovania.wav')
+audio.set_volume(1/2)
 
 # Adjust the music to remove start offset
 audio.wf.setpos(6400)
@@ -31,17 +35,40 @@ stop = False
 # Create the music thread
 music_thread = threading.Thread(target=audio.play)
 
+# endregion Initialization
+
+# region Run Homescreen
+
 # Run the main menu
 stop = run_homescreen()
 
-# Run the upper-limit attention calibration
-#if not stop: stop = run_maths()
+# endregion Run Homescreen
 
-# Play the music
-if not stop: music_thread.start()
+# region Run Maths Calibration
+
+# Run the upper-limit attention calibration
+if not stop: stop, calibration_dataframe = run_maths()
+
+# endregion Run Maths Calibration
+
+# region Run Game
+
+# If the game is still running...
+if not stop:
+
+    # Play the music
+    music_thread.start()
+
+    # Calibrate the headset
+    calibration_setting = attention.get_calibration_settings(calibration_dataframe)
+    print(calibration_setting)
 
 # Run the game
-if not stop: stop = run(player, enemy_list, round_list, audio)
+if not stop: stop = run(player, enemy_list, round_list, calibration_setting)
+
+# endregion Run Game
+
+# region Close Game
 
 # Stop the music thread
 audio.stop = True
@@ -52,3 +79,5 @@ interface.disconnect()
 
 # Close the window
 pg.quit()
+
+# endregion Close Game

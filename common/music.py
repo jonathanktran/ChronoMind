@@ -19,6 +19,9 @@ class AudioFile:
         # The rate the audio is played at
         self.rate = 1
 
+        # The volume multiplier of the audio
+        self.volume = 1
+
         # Get the wave file as an object
         self.wf = wave.open(file, 'rb')
 
@@ -31,7 +34,20 @@ class AudioFile:
             output=True)
 
     def set_rate(self, rate):
+        """Set the playback rate of the music.
+
+        :param rate: The multiplier of playback speed.
+        """
+
         self.rate = rate
+
+    def set_volume(self, volume):
+        """Set the volume of the music.
+
+        :param volume: The multiplier of the base volume
+        """
+
+        self.volume = volume
 
     def play_chunk(self):
         """Play a chunk of music at the given framerate"""
@@ -39,8 +55,9 @@ class AudioFile:
         # Find the number of real samples
         samples_per_channel = int(self.chunk * self.rate)
 
-        # Find the audio frames from both channels
-        real_tones = np.fromstring(self.wf.readframes(samples_per_channel), dtype=np.int16).astype(np.float)
+        # Find the audio frames from both channels, who's amplitude is modified by the volume.
+        real_tones = np.fromstring(self.wf.readframes(samples_per_channel), dtype=np.int16).astype(np.float) \
+                     * self.volume
 
         # Check for the end of the file
         if len(real_tones) == 0:

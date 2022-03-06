@@ -9,7 +9,10 @@ import pandas as pd
 headset = None
 
 # Read the recorded attention
-recorded_headset = pd.read_csv("../neurosky/data/game_1_min.csv")
+recorded_headset = None
+
+# The number of seconds recorded
+recorded_time = None
 
 
 def connect(version):
@@ -50,7 +53,7 @@ def nearest_recorded_sample(time):
     :return values: The recorded headset values who's timestamp is closest to the given
     """
 
-    return recorded_headset.iloc[(recorded_headset['seconds']-(time % 60)).abs().argsort()[0]]
+    return recorded_headset.iloc[(recorded_headset['seconds']-(time % recorded_time)).abs().argsort()[0]]
 
 
 def get_attention(time):
@@ -175,8 +178,8 @@ def get_values(time):
         return nearest_recorded_sample(time)[1:].tolist()
 
 
-def to_csv(data):
-    """This method creates a csv file in the data folder from a given list of neurosky headset data.
+def to_dataframe(data):
+    """This method returns a dataframe in the data folder from a given list of neurosky headset data.
 
     :param data: A list of lists, where each list contains headset information
     """
@@ -184,8 +187,17 @@ def to_csv(data):
     # Create a dataframe from the data with the given form:
     # ['seconds', 'raw_value', 'attention', 'blink',
     # 'delta', 'theta', 'low-alpha', 'high-alpha', 'low-beta', 'high-beta', 'low-gamma', 'mid-gamma']
-    df = pd.DataFrame(data, columns=['seconds', 'raw_value', 'attention', 'blink', 'delta', 'theta', 'low-alpha',
+    return pd.DataFrame(data, columns=['seconds', 'raw_value', 'attention', 'blink', 'delta', 'theta', 'low-alpha',
                                      'high-alpha', 'low-beta', 'high-beta', 'low-gamma', 'mid-gamma'])
 
-    # Write the dataframe to a file
-    df.to_csv("../neurosky/data/calibration.csv")
+
+def set_file(file):
+    """Set the file to read from, in the event that the headset is not connected"""
+
+    global recorded_headset, recorded_time
+
+    # Read the recorded headset values as a dataframe
+    recorded_headset = pd.read_csv(file)
+
+    # Find the number of seconds in the recorded headset file
+    recorded_time = recorded_headset.iloc[-1]['seconds']
