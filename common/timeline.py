@@ -5,6 +5,7 @@ from display import DISPLAY_WIDTH, DISPLAY_HEIGHT
 import enemies
 import rounds
 from math import floor
+import color
 
 
 # The timeline dictionary
@@ -16,6 +17,10 @@ MIDDLE_TOP = (DISPLAY_WIDTH/2, 0)
 MIDDLE_BOTTOM = (DISPLAY_WIDTH/2, DISPLAY_HEIGHT)
 MIDDLE_LEFT = (0, DISPLAY_HEIGHT/2)
 MIDDLE_RIGHT = (DISPLAY_WIDTH, DISPLAY_HEIGHT/2)
+BOTTOM_LEFT = (0, DISPLAY_HEIGHT)
+BOTTOM_RIGHT = (DISPLAY_WIDTH, DISPLAY_HEIGHT)
+TOP_LEFT = (0, 0)
+TOP_RIGHT = (DISPLAY_WIDTH, 0)
 
 # endregion Reference Positions
 
@@ -36,16 +41,6 @@ SLOW_UP = (0, -DISPLAY_HEIGHT/2)
 SLOW_DOWN = (0, DISPLAY_HEIGHT/2)
 
 # endregion Reference Speeds
-
-# region Reference Colors
-
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-
-# endregion Reference Colors
 
 # region Reference Directions
 
@@ -111,13 +106,14 @@ def check(time, dt):
 
 # region Timeline Creation
 
-add(0, enemies.Bullet(MIDDLE_LEFT, SLOW_RIGHT, GREEN))
-add(2000, enemies.Bullet(MIDDLE_RIGHT, SLOW_LEFT, GREEN))
-add(4000, enemies.Bullet(MIDDLE_TOP, SLOW_DOWN, GREEN))
-add(6000, enemies.Bullet(MIDDLE_BOTTOM, SLOW_UP, GREEN))
-add(8000, rounds.Sprinkler(enemies.Bullet, MIDDLE_LEFT, FAST_HORIZONTAL, DIR_RIGHT, -45, 45, 90, BLUE, 8, 2000/8))
-add(10000, rounds.Sprinkler(enemies.Bullet, MIDDLE_RIGHT, FAST_HORIZONTAL, DIR_LEFT, DIR_BOTTOM_LEFT, DIR_TOP_LEFT, 90, BLUE, 8, 2000/8))
-add(12000, rounds.Sprinkler(enemies.Bullet, MIDDLE_TOP, FAST_VERTICAL, DIR_DOWN, DIR_BOTTOM_RIGHT, DIR_BOTTOM_LEFT, 90, BLUE, 8, 2000/8))
-add(14000, rounds.Sprinkler(enemies.Bullet, MIDDLE_BOTTOM, FAST_VERTICAL, DIR_UP, DIR_TOP_LEFT, DIR_TOP_RIGHT, 90, BLUE, 8, 2000/8))
+#add(0, rounds.Row(enemies.BlinkBullet, SLOW_UP, color.RED, 21, 1/2, BOTTOM_LEFT, BOTTOM_RIGHT, 1/2000, 200))
+#add(0, rounds.Straight(enemies.BlinkBullet, MIDDLE_LEFT, SLOW_RIGHT, color.GREEN, 10, 1000/5))
+add(0, rounds.Straight(enemies.WaveBullet, MIDDLE_RIGHT, SLOW_LEFT, color.GREEN, 10, 1000/5))
+add(4000, enemies.Bullet(MIDDLE_TOP, SLOW_DOWN, color.GREEN))
+add(6000, enemies.Bullet(MIDDLE_BOTTOM, SLOW_UP, color.GREEN))
+add(8000, rounds.Sprinkler(enemies.Bullet, MIDDLE_LEFT, FAST_HORIZONTAL, DIR_RIGHT, -45, 45, 90, color.BLUE, 8, 2000/8))
+add(10000, rounds.Sprinkler(enemies.Bullet, MIDDLE_RIGHT, FAST_HORIZONTAL, DIR_LEFT, DIR_BOTTOM_LEFT, DIR_TOP_LEFT, 90, color.BLUE, 8, 2000/8))
+add(12000, rounds.Sprinkler(enemies.Bullet, MIDDLE_TOP, FAST_VERTICAL, DIR_DOWN, DIR_BOTTOM_RIGHT, DIR_BOTTOM_LEFT, 90, color.BLUE, 8, 2000/8))
+add(14000, rounds.Sprinkler(enemies.Bullet, MIDDLE_BOTTOM, FAST_VERTICAL, DIR_UP, DIR_TOP_LEFT, DIR_TOP_RIGHT, 90, color.BLUE, 8, 2000/8))
 
 # endregion Timeline Creation

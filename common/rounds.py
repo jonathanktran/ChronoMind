@@ -207,4 +207,85 @@ class Straight(Round):
             self.time -= self.dt
 
 
+class Row(Round):
+    """This is the Row Round. It spawns enemies from its starting position, sending them outwards at a given
+     velocity. These enemies travel in a straight line. This row moves linearly over time between two points."""
+
+    def __init__(self, enemy, enemy_velocity, color, enemy_count, starting_position, position_1, position_2, velocity, dt):
+        """Initialize the Straight Round
+
+        :param enemy: The enemy class to spawn
+        :param enemy_velocity: The velocity of each enemy
+        :param color: The color of the spawned enemies
+        :param enemy_count: The number of enemies to spawn before destroying this spawner
+        :param starting_position: The starting position, where 0 is pos_1, and 1 is pos_2
+        :param position_1: An (x, y) tuple representing the first bound of the round's motion
+        :param position_2: An (x, y) tuple representing the second bound of the round's motion
+        :param velocity: The velocity of the round, between -1 and 1.
+        :param dt: The number of ms between each enemy spawn
+        """
+
+        super().__init__()
+        self.enemy = enemy
+        self.x = position_1[0]
+        self.y = position_1[1]
+        self.vel_x = enemy_velocity[0]
+        self.vel_y = enemy_velocity[1]
+        self.color = color
+        self.enemy_count = enemy_count
+        self.position = starting_position
+        self.position_1 = position_1
+        self.position_2 = position_2
+        self.velocity = velocity
+        self.dt = dt
+        self.time = dt
+
+    def create_enemy(self, delay):
+        """Spawn an enemy
+
+        :param delay: The amount of time this enemy is being created past the expected time
+        """
+
+        # Spawn the enemy
+        enemies.enemy_create(self.enemy((self.x, self.y), (self.vel_x, self.vel_y), self.color), delay)
+        self.enemy_count = self.enemy_count - 1
+
+        # Check if the round is finished
+        if self.enemy_count == 0:
+            round_destroy(self)
+
+    def step(self, dt):
+        """This runs every frame
+
+        :param dt: The amount of time since the previous frame
+        """
+
+        # Find the position of the round
+        self.position += self.velocity * dt
+
+        # If the position is above 1 or below 0, account for the extra component
+        if self.position > 1:
+            self.position = 1 - (self.position - 1)
+            self.velocity = -self.velocity
+        elif self.position < 0:
+            self.position = -self.position
+            self.velocity = -self.velocity
+
+        # Calculate the new x and y coordinates
+        self.x = self.position_1[0] + (self.position * (self.position_2[0] - self.position_1[0]))
+        self.y = self.position_1[1] + (self.position * (self.position_2[1] - self.position_1[1]))
+
+        # Increment the time
+        self.time = self.time + dt
+
+        # If it is time for an enemy to spawn...
+        if self.time >= self.dt:
+
+            # Create an enemy
+            self.create_enemy(self.time - self.dt)
+
+            # Reset the timer
+            self.time -= self.dt
+
+
 # endregion Round Classes
