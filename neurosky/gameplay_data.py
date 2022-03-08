@@ -46,7 +46,7 @@ print("Recording completed!")
 df = pd.DataFrame(data, columns=['seconds', 'raw_value', 'attention', 'our_attention', 'blink', 'delta', 'theta', 'low-alpha', 'high-alpha', 'low-beta', 'high-beta', 'low-gamma', 'mid-gamma'])
 
 # Saving to data directory
-df.to_csv("../neurosky/data/game_1_min.csv")
+df.to_csv("../neurosky/data/game_1_min.csv", index=False)
 
 # Close Neurosky connection
 interface.disconnect()
