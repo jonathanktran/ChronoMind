@@ -269,6 +269,7 @@ def get_our_attention(att_list, baseline_list, time):
         else:
             # Get rolling mean of attention values
             rolling_att = get_rolling_mean(att_list)
+            print(rolling_att)
 
         # Find number of standard deviations rolling_att is from baseline_att
         num_sd = get_slow_strength(rolling_att, baseline_list)
@@ -286,17 +287,25 @@ def get_our_attention(att_list, baseline_list, time):
         return nearest_recorded_sample(time)["attention"]
 
 
-def get_att_ratio():
+def get_att_ratio(time):
     """This method gets the attention level by dividing the player's gamma value by their alpha value"""
 
-    # Get list of headset waves
-    waves_list = []
-    for k, v in headset.waves.items():
-        waves_list.append(v)
+    if headset is not None:
+        # Get list of headset waves
+        waves_list = []
+        for k, v in headset.waves.items():
+            waves_list.append(v)
 
-    # Calulate attention ratio (gamma/alpha)
-    gamma = waves_list[7]
-    alpha = (waves_list[2] + waves_list[3]) / 2
-    our_att_ratio = gamma/alpha
+        # Calulate attention ratio (gamma/alpha)
+        gamma = waves_list[7]
+        alpha = (waves_list[2] + waves_list[3]) / 2
+        if alpha == 0: # to avoid division by 0
+            our_att_ratio = 2
+        else:
+            our_att_ratio = gamma/alpha
 
-    return our_att_ratio
+        return our_att_ratio
+
+    # If the headset is not connected, return the recorded value for the given time
+    else:
+        return nearest_recorded_sample(time)["our-attention"]
