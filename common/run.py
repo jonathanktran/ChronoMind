@@ -35,7 +35,7 @@ def run(player, enemies, rounds, calibration_setting):
     # Start the first timeline, if there is any
     timeline.check(0, 1)
 
-    # Set the attention to read from the calibration file if the headset is not connected
+    # Set the attention to read from the gameplay calibration file if the headset is not connected
     interface.set_file("../neurosky/data/game_1_min.csv")
 
     # The current time multiplier
@@ -48,7 +48,7 @@ def run(player, enemies, rounds, calibration_setting):
     att_list = []
 
     # Get baseline attention level mean and standard deviation as list [mean, sd]
-    baseline_list = get_baseline("../neurosky/data/calibration.csv")
+    baseline_list = interface.get_baseline("../neurosky/data/calibration.csv")
 
     # Run the game until it is quit
     while True:
@@ -77,12 +77,12 @@ def run(player, enemies, rounds, calibration_setting):
                 extrapolated_attention = current_attention
             
             # Append attention ratio to list and remove first if more than 10
-            att_list.append(get_att_ratio())
-            if (length(att_list) > 10):
+            att_list.append(interface.get_att_ratio(realtime / 1000))
+            if (len(att_list) > 10):
                 att_list.pop(0)
 
             # Get the current attention
-            # current_attention = interface.get_attention(realtime / 1000)
+            # OLD (using headset measure): current_attention = interface.get_attention(realtime / 1000)
             current_attention = interface.get_our_attention(att_list, baseline_list, realtime / 1000)
 
             # If the current attention is different, update the latest attention measure
@@ -172,9 +172,9 @@ def run(player, enemies, rounds, calibration_setting):
         time_mult_surface = fonts.HUD.render('Time Multiplier: ' + "{:.2f}".format(time_mult), False, (0, 0, 0))
         display.blit(time_mult_surface, (DISPLAY_WIDTH/2 - time_mult_surface.get_width()/2, 32))
 
-        # Draw the time multiplier
+        # Draw the attention level
         attention_surface = fonts.HUD.render('Attention: ' + str(builtins.round(current_attention)), False, (0, 0, 0))
-        display.blit(attention_surface, (32, DISPLAY_HEIGHT - attention_surface.get_height() - 32))
+        display.blit(attention_surface, (32, DISPLAY_HEIGHT - attention_surface.get_height() - 100))
 
         # endregion Draw the HUD
 
