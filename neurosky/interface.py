@@ -184,7 +184,7 @@ def get_values(time):
 
 
 def to_dataframe(data):
-    """This method returns a dataframe in the data folder from a given list of neurosky headset data.
+    """This method returns a dataframe from a given list of neurosky headset data.
 
     :param data: A list of lists, where each list contains headset information
     """
