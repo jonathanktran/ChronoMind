@@ -12,6 +12,7 @@ import threading
 import platform
 from neurosky import interface
 import attention
+import pandas as pd
 
 
 # region Initialization
@@ -47,7 +48,9 @@ stop = run_homescreen()
 # region Run Maths Calibration
 
 # Run the upper-limit attention calibration
-if not stop: stop, calibration_dataframe = run_maths()
+if not stop:
+    stop, calibration_dataframe = run_maths()
+    calibration_dataframe.to_csv("../neurosky/data/calibration.csv", index=False)
 
 # endregion Run Maths Calibration
 
