@@ -159,7 +159,7 @@ def get_values(time):
     """
 
     # If the headset is connected, return a list of values in the following form:
-    # ['seconds', 'raw_value', 'attention', 'blink',
+    # ['seconds', 'raw_value', 'attention', 'our-attention', 'blink',
     # 'delta', 'theta', 'low-alpha', 'high-alpha', 'low-beta', 'high-beta', 'low-gamma', 'mid-gamma']
     if headset is not None:
 
@@ -169,6 +169,11 @@ def get_values(time):
         # Append each wave band to the list
         for k, v in headset.waves.items():
             measure_list.append(v)
+
+        # Calculate our attention ratio (gamma/alpha) and insert into list
+        gamma = measure_list[11]
+        alpha = (measure_list[6] + measure_list[7]) / 2
+        measure_list.insert(3, gamma/alpha)
 
         # Return the list of measures and waves
         return measure_list
@@ -185,9 +190,9 @@ def to_dataframe(data):
     """
 
     # Create a dataframe from the data with the given form:
-    # ['seconds', 'raw_value', 'attention', 'blink',
+    # ['seconds', 'raw_value', 'attention', 'our-attention', 'blink',
     # 'delta', 'theta', 'low-alpha', 'high-alpha', 'low-beta', 'high-beta', 'low-gamma', 'mid-gamma']
-    return pd.DataFrame(data, columns=['seconds', 'raw_value', 'attention', 'blink', 'delta', 'theta', 'low-alpha',
+    return pd.DataFrame(data, columns=['seconds', 'raw_value', 'attention', 'our-attention', 'blink', 'delta', 'theta', 'low-alpha',
                                      'high-alpha', 'low-beta', 'high-beta', 'low-gamma', 'mid-gamma'])
 
 
@@ -201,3 +206,97 @@ def set_file(file):
 
     # Find the number of seconds in the recorded headset file
     recorded_time = recorded_headset.iloc[-1]['seconds']
+
+
+def get_baseline(data_csv):
+    """This method takes a data csv file and returns the baseline attention level mean and standard deviation
+
+    :param data_csv: A list of lists, where each list contains headset information
+    :return a list [att, sd] where att is attention and sd is standard deviation
+    """
+
+    df = pd.read_csv(data_csv)
+    att = df['our-attention'].mean()
+    sd = df['our-attention'].std()
+
+    return [att, sd]
+
+
+def get_rolling_mean(att_list):
+    """This method calculates the player's attention level using a list of the last 10 attention values recorded by the headset
+
+    :param att_list: A list of the last 10 attention values recorded by the headset
+    :return att_level: A rolling average of the last 10 attention values
+    """
+
+    att_level = sum(att_list)/len(att_list)
+    return att_level
+
+
+def get_slow_strength(rolling_att, baseline_list):
+    """This method calculates the number of standard deviations the attention level is away from the baseline attention level
+
+    :param rolling_att: A rolling average of the player's last 10 attention values
+    :param baseline_list: A list [baseline_att_mean, baseline_att_sd]
+    :return slow_strengh: The slow strengh if it is greater than 0, otherwise 0
+    """
+
+    baseline_att = baseline_list[0]
+    sd = baseline_list[1]
+
+    slow_strength = (rolling_att - baseline_att)/sd
+    
+    # Return 0 instead of slow strength if slow strength is less than 0
+    if slow_strength < 0:
+        return 0
+        
+    return slow_strength
+
+
+def get_our_attention(att_list, baseline_list, time):
+    """This method calculates an attention level from 0-100 based on the number of standard deviations away from the baseline attention level
+
+    :param att_list: A list of the last 10 attention values recorded by the headset
+    :param baseline_list: A list [baseline_att_mean, baseline_att_sd]
+    :param time: Current time since starting the game
+    :return current_attention: A calculated attention level from 0-100
+    """
+    # If the headset is connected
+    if headset is not None:
+        if (len(att_list) < 10):
+            # If att_list has less than 10 values, use baseline attention instead
+            rolling_att = baseline_list[0]
+        else:
+            # Get rolling mean of attention values
+            rolling_att = get_rolling_mean(att_list)
+
+        # Find number of standard deviations rolling_att is from baseline_att
+        num_sd = get_slow_strength(rolling_att, baseline_list)
+
+        # Calculate attention level using number of standard deviations from baseline
+        if(num_sd >= 3):
+            current_attention = 100
+        else:
+            current_attention = num_sd/3 * 100
+        
+        return current_attention
+
+    # If the headset is not connected, return the recorded value for the given time
+    else:
+        return nearest_recorded_sample(time)["attention"]
+
+
+def get_att_ratio():
+    """This method gets the attention level by dividing the player's gamma value by their alpha value"""
+
+    # Get list of headset waves
+    waves_list = []
+    for k, v in headset.waves.items():
+        waves_list.append(v)
+
+    # Calulate attention ratio (gamma/alpha)
+    gamma = waves_list[7]
+    alpha = (waves_list[2] + waves_list[3]) / 2
+    our_att_ratio = gamma/alpha
+
+    return our_att_ratio

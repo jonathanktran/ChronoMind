@@ -8,7 +8,6 @@ import timeline
 import attention
 import neurosky.interface as interface
 
-
 def run(player, enemies, rounds, calibration_setting):
     """This function is a loop which runs a number of times per second, given by the FPS value in display.
 
@@ -45,6 +44,12 @@ def run(player, enemies, rounds, calibration_setting):
     # Tick the clock once to remove delays
     clock.tick(FPS)
 
+    # Attention array to store last 10 attention values from headset
+    att_list = []
+
+    # Get baseline attention level mean and standard deviation as list [mean, sd]
+    baseline_list = get_baseline("../neurosky/data/calibration.csv")
+
     # Run the game until it is quit
     while True:
 
@@ -70,9 +75,15 @@ def run(player, enemies, rounds, calibration_setting):
 
                 # Store the current attention for extrapolation
                 extrapolated_attention = current_attention
+            
+            # Append attention ratio to list and remove first if more than 10
+            att_list.append(get_att_ratio())
+            if (length(att_list) > 10):
+                att_list.pop(0)
 
             # Get the current attention
-            current_attention = interface.get_attention(realtime / 1000)
+            # current_attention = interface.get_attention(realtime / 1000)
+            current_attention = interface.get_our_attention(att_list, baseline_list, realtime / 1000)
 
             # If the current attention is different, update the latest attention measure
             if current_attention != latest_attention_measure[0]:
