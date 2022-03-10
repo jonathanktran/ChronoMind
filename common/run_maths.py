@@ -7,12 +7,11 @@ import fonts
 import math
 import random
 import color
-from neurosky import interface
 
 
 # region Constants
 
-MAX_TIME = 600
+MAX_TIME = 60000 # 60000 = 60 seconds
 
 # endregion Constants
 
@@ -96,9 +95,6 @@ def run_maths():
     # The number of correct responses
     correct = 0
 
-    # Set the attention to read from the calibration file if the headset is not connected
-    interface.set_file("../neurosky/data/calibration.csv")
-
     # Tick the clock once to remove delays
     clock.tick(FPS)
 
@@ -110,9 +106,6 @@ def run_maths():
 
         # Find the current time
         time -= dt
-
-        # Add this frame of data to the list of data for the entire session
-        data.append(interface.get_values((MAX_TIME - time) / 1000))
 
         # Generate a new question if the current one is done
         if question is None: question = generate_question()
@@ -202,9 +195,6 @@ def run_maths():
         # If the timer is at 0, break the loop
         if time <= 0:
 
-            # Exit the maths portion, and obtain the calibration data. If no headset is found, return a recorded version
-            if interface.headset is not None:
-                return False, interface.to_dataframe(data)
-            else:
-                return False, pd.read_csv("../neurosky/data/calibration.csv")
+            # Exit the maths portion
+            return False
 
