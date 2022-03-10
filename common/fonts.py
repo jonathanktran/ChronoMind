@@ -7,13 +7,16 @@ import pygame as pg
 pg.font.init()
 
 # The font used to display the hud
-HUD = pg.font.SysFont('Impact', 50)
+HUD = pg.font.SysFont('Trebuchet MS', 50)
 
 # The font used to display the maths letters
 MATH = pg.font.SysFont('Comic Sans MS', 60)
 
 # The font used for the Home Button
-HOME = pg.font.SysFont('Impact', 50)
+CREDITS = pg.font.SysFont('Trebuchet MS', 50)
 
 # The font used for the Quit Button
-QUIT = pg.font.SysFont('Impact', 50)
+QUIT = pg.font.SysFont('Trebuchet MS', 50)
+
+# The font used for the Back Button
+BACK = pg.font.SysFont('Trebuchet MS', 50)
