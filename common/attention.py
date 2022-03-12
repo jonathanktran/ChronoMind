@@ -36,7 +36,7 @@ def get_calibration_settings(dataframe):
     attention_count = round(dataframe.shape[0]/2)
 
     # Find the the top 50% of attention values
-    attention_values = dataframe['attention'].nlargest(attention_count)
+    attention_values = dataframe['our-attention'].nlargest(attention_count)
 
     # Return the 1/4 quartile for those values
     return attention_values.quantile(0.1)
