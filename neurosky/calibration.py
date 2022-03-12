@@ -30,8 +30,8 @@ class Calibration:
             start_time = df["seconds"][0]
             df["seconds"] = df["seconds"] - start_time
 
-            # Remove blinks from the data
-            df = interface.remove_blink(df)
+            # FFT on dataframe to get alpha and gamma power
+            df = interface.transform_calibration(df)
 
             # Save as calibration file in data folder
             df.to_csv("../neurosky/data/calibration.csv", index=False)

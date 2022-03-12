@@ -3,6 +3,9 @@
 from neurosky import mindwave
 import time
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from collections import deque
 from scipy.fft import fft, fftfreq
 
 
@@ -259,8 +262,37 @@ def get_slow_strength(rolling_att, baseline_list):
         
     return slow_strength
 
+def get_realtime_ratio(att_deque):
+    # Run FFT on att_deque
+    transformed_uv = fft(np.array(att_deque))
+    N = len(att_deque)  # number of points
+    T = 1/125  # sample spacing
+    freq = fftfreq(N, T)[:N // 2]  # frequency
+    power = 2.0 / N * np.abs(transformed_uv[0:N // 2])
 
-def get_our_attention(att_deque, baseline_list, sampling_rate, time):
+    # Put FFT transform results into a dataframe
+    freq_pow_df = pd.DataFrame(data={'freq': freq, 'power': power})
+    freq_pow_df["slope"] = 0
+    freq_pow_df["intercept"] = 0
+
+    # Get slope to next point for each (freq,pow)
+    for s in range(0, len(freq_pow_df) - 1):
+        x1 = freq_pow_df.iloc[s]["freq"]
+        y1 = freq_pow_df.iloc[s]["power"]
+        x2 = freq_pow_df.iloc[s + 1]["freq"]
+        y2 = freq_pow_df.iloc[s + 1]["power"]
+        slope_list = get_slope_list(x1, x2, y1, y2)
+        freq_pow_df.at[s, "slope"] = slope_list[0]
+        freq_pow_df.at[s, "intercept"] = slope_list[1]
+
+    # Create subset dataframes for alpha and gamma
+    alpha = get_avg_power(8, 13, freq_pow_df)
+    gamma = get_avg_power(30, 50, freq_pow_df)
+
+    # Return attention ratio
+    return gamma/alpha
+
+def get_our_attention(att_deque, baseline_list, time):
     """This method calculates an attention level from 0-100 based on the number of
     standard deviations away from the baseline attention level
 
@@ -271,15 +303,11 @@ def get_our_attention(att_deque, baseline_list, sampling_rate, time):
     """
     # If the headset is connected
     if headset is not None:
-        if len(att_deque) < 1/sampling_rate:
-            # If att_deque has less than 1 second data, use baseline attention instead
-            rolling_att = baseline_list[0]
-        else:
-            # Get rolling mean of attention values
-            rolling_att = get_rolling_mean(att_deque)
+        # Perform FFT
+        att_ratio = get_realtime_ratio(att_deque)
 
         # Find number of standard deviations rolling_att is from baseline_att
-        num_sd = get_slow_strength(rolling_att, baseline_list)
+        num_sd = get_slow_strength(att_ratio, baseline_list)
 
         # Calculate attention level using number of standard deviations from baseline
         if(num_sd >= 3):
@@ -324,72 +352,6 @@ def get_microvolts(raw_value):
     """
     return raw_value * (1.8/4096) / 2000 * 1000000
 
-def remove_blink(df):
-    """Filters out blink data from calibration data, before and after the
-    peak blink.
-
-    :param df: calibration dataframe containing column called "raw_value"
-    :return: calibration dataframe containing column called "raw_uv" that
-    has removed blinks
-    """
-
-    # Convert raw_value to microvolts for analysis
-    df["raw_uv"] = get_microvolts(df["raw_value"])
-
-    # Make sure df index is correct
-    df = df.reset_index()
-
-    # Find index of raw_uv column
-    raw_uv_ind = df.columns.get_loc("raw_uv")
-
-    # Create dataframe of values above 75 uV or below -75 uV
-    # As these are very high, they are most likely blinks
-    out_range_df = df[(df["raw_uv"] >= 75) | (df["raw_uv"] <= -75)]
-
-    # For each point in the out of range dataframe:
-    for time in out_range_df["seconds"]:
-        # Obtain the previous value of raw_uv (before the blink section)
-        prev_df = df[df["seconds"] < time - 0.2]
-        prev_ind = int(prev_df.iloc[len(prev_df) - 1]["index"])
-        prev_uv = df.iloc[prev_ind, raw_uv_ind]
-        # For the range less than 200 ms and greater than 200 ms of the peak blink,
-        # Set these equal to the previous value of raw_uv
-        df.loc[(df["seconds"] <= time + 0.2) & (df["seconds"] >= time - 0.2), "raw_uv"] = prev_uv
-    return df
-
-def transform_calibration(df):
-    """Uses Fast Fourier Transform on the raw values in microvolts and
-    appends the transformed values as a new column in the provided df
-
-    :param df: calibration dataframe without any filtering
-    :return: calibration dataframe with power values for gamma and alpha appended
-    """
-    # Perform filtering on dataframe
-    df = remove_blink(df)
-
-    # Perform FFT
-    df["transformed_uv"] = fft((df["raw_uv"]).to_numpy())
-    N = len(df) # number of points
-    T = 0.5  # sample spacing: currently 0.5 s
-    freq = fftfreq(N, T)[:N // 2]  # frequency
-    power = 2.0 / N * np.abs(df["transformed_uv"][0:N // 2])
-
-    # # Put FFT transform results into a dataframe
-    # freq_pow_df = pd.DataFrame(data={'freq': freq, 'power': power})
-    #
-    # # Create subset dataframes for alpha and gamma
-    # alpha_df = freq_pow_df[(freq_pow_df["freq"] >= 8) & (freq_pow_df["freq"] <= 13)]
-    # gamma_df = freq_pow_df[(freq_pow_df["freq"] >= 30) & (freq_pow_df["freq"] <= 50)]
-    #
-    # # Calculate the mean power for alpha and gamma and append to our dataframe
-    # df["our-alpha"] = alpha_df["power"].mean()
-    # df["our-gamma"] = gamma_df["power"].mean()
-    #
-    # # Edit the our-attention column to have the ratio using our derived
-    # # alpha and gamma values
-    # df["our-attention"] = df["our-gamma"] / df["our-alpha"]
-    return df
-
 def detect_blink():
     """Checks if there is a blink at the current point
 
@@ -407,3 +369,104 @@ def detect_blink():
             return False
     else:
         return False
+
+def remove_blink(df):
+    """Filters out blink data from calibration data, before and after the
+    peak blink.
+
+    :param df: calibration dataframe containing column called "raw_value"
+    :return: calibration dataframe containing column called "raw_uv" that
+    has removed blinks
+    """
+
+    # Convert raw_value to microvolts for analysis
+    df["raw_uv"] = get_microvolts(df["raw_value"])
+
+    # Make sure df index is correct
+    df = df.reset_index(drop=True)
+
+    # Find index of raw_uv column
+    raw_uv_ind = df.columns.get_loc("raw_uv")
+
+    # Create dataframe of values above 75 uV or below -75 uV
+    # As these are very high, they are most likely blinks
+    out_range_df = df[(df["raw_uv"] >= 75) | (df["raw_uv"] <= -75)]
+
+    # For each point in the out of range dataframe:
+    for time in out_range_df["seconds"]:
+        # Obtain the previous value of raw_uv (before the blink section)
+        prev_df = df[df["seconds"] < time - 0.2]
+        prev_ind = prev_df.index.values.astype(int)[len(prev_df)-1]
+        prev_uv = df.iloc[prev_ind, raw_uv_ind]
+        # For the range less than 200 ms and greater than 200 ms of the peak blink,
+        # Set these equal to the previous value of raw_uv
+        df.loc[(df["seconds"] <= time + 0.2) & (df["seconds"] >= time - 0.2), "raw_uv"] = prev_uv
+    return df
+
+def get_slope_list(freq_1, freq_2, pow_1, pow_2):
+    a = (pow_2 - pow_1) / (freq_2 - freq_1)
+    b = pow_1 - a * freq_1
+    return [a, b]
+
+def get_avg_power(start_freq, end_freq, dataframe):
+    pow_list = []
+    for freq in range(start_freq, end_freq + 1):
+        freq_df = dataframe[dataframe["freq"] <= freq]
+        # Get the closest lower value to the freq, which is where the
+        # slope_list to the next point is stored
+        slope = freq_df.iloc[len(freq_df) - 1]["slope"]
+        intercept = freq_df.iloc[len(freq_df) - 1]["intercept"]
+        pow_list.append(slope * freq + intercept)
+    return sum(pow_list)/len(pow_list)
+
+def transform_calibration(df):
+    """Uses Fast Fourier Transform on the raw values in microvolts
+
+    :param df: calibration dataframe without any filtering
+    :return: calibration dataframe with power values for gamma and alpha appended
+    """
+    # Perform filtering on dataframe
+    df = remove_blink(df)
+
+    # Perform FFT
+    num_included = 10
+    extra_rows = len(df) % num_included
+    if extra_rows != 0:
+        df = df.iloc[:-extra_rows, :]
+    df["our-alpha"] = 0
+    df["our-gamma"] = 0
+    for i in range(0, len(df), num_included):
+        # Split df into subsets of num_included points each and
+        # run FFT on those subsets
+        subset_df = df.iloc[i:i+num_included,:]
+        transformed_uv = fft((subset_df["raw_uv"]).to_numpy())
+        N = len(subset_df) # number of points
+        T = 1/125  # sample spacing
+        freq = fftfreq(N, T)[:N // 2]  # frequency
+        power = 2.0 / N * np.abs(transformed_uv[0:N // 2])
+        # plt.plot(freq, power)
+        # plt.show()
+
+        # Put FFT transform results into a dataframe
+        freq_pow_df = pd.DataFrame(data={'freq': freq, 'power': power})
+        freq_pow_df["slope"] = 0
+        freq_pow_df["intercept"] = 0
+
+        # Get slope to next point for each (freq,pow)
+        for s in range(0, len(freq_pow_df)-1):
+            x1 = freq_pow_df.iloc[s]["freq"]
+            y1 = freq_pow_df.iloc[s]["power"]
+            x2 = freq_pow_df.iloc[s+1]["freq"]
+            y2 = freq_pow_df.iloc[s+1]["power"]
+            slope_list = get_slope_list(x1, x2, y1, y2)
+            freq_pow_df.at[s, "slope"] = slope_list[0]
+            freq_pow_df.at[s, "intercept"] = slope_list[1]
+
+        # Create subset dataframes for alpha and gamma
+        df.loc[i:i+num_included, "our-alpha"] = get_avg_power(8, 13, freq_pow_df)
+        df.loc[i:i+num_included, "our-gamma"] = get_avg_power(30, 50, freq_pow_df)
+
+    # Edit the our-attention column to have the ratio using our derived
+    # alpha and gamma values
+    df["our-attention"] = df["our-gamma"] / df["our-alpha"]
+    return df
