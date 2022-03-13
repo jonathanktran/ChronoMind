@@ -1,5 +1,5 @@
-import pandas as pd
-import numpy as np
+"""This file contains the methods for attention measurement during gameplay."""
+
 from neurosky import interface
 import time
 from collections import deque

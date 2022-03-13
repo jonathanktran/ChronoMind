@@ -4,8 +4,6 @@ from neurosky import mindwave
 import time
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-from collections import deque
 from scipy.fft import fft, fftfreq
 
 
@@ -232,19 +230,9 @@ def get_baseline(data_csv):
     return [att, sd]
 
 
-def get_rolling_mean(att_list):
-    """This method calculates the player's attention level using a list of the last 10 attention values recorded by the headset
-
-    :param att_list: A list of the last 10 attention values recorded by the headset
-    :return att_level: A rolling average of the last 10 attention values
-    """
-
-    att_level = sum(att_list)/len(att_list)
-    return att_level
-
-
 def get_slow_strength(rolling_att, baseline_list):
-    """This method calculates the number of standard deviations the attention level is away from the baseline attention level
+    """This method calculates the number of standard deviations the attention level is
+    away from the baseline attention level
 
     :param rolling_att: A rolling average of the player's last 10 attention values
     :param baseline_list: A list [baseline_att_mean, baseline_att_sd]
@@ -263,6 +251,12 @@ def get_slow_strength(rolling_att, baseline_list):
     return slow_strength
 
 def get_realtime_ratio(att_deque):
+    """Obtains the average gamma/alpha ratio from the recent raw values
+    from the headset
+
+    :param att_deque: deque containing the most recent raw_uv values
+    :return: average gamma/alpha ratio for the provided values
+    """
     # Run FFT on att_deque
     transformed_uv = fft(np.array(att_deque))
     N = len(att_deque)  # number of points
@@ -321,28 +315,6 @@ def get_our_attention(att_deque, baseline_list, time):
     else:
         return nearest_recorded_sample(time)["attention"]
 
-def get_att_ratio(time):
-    """This method gets the attention level by dividing the player's gamma value by their alpha value"""
-
-    if headset is not None:
-        # Get list of headset waves
-        waves_list = []
-        for k, v in headset.waves.items():
-            waves_list.append(v)
-
-        # Calulate attention ratio (gamma/alpha)
-        gamma = waves_list[7]
-        alpha = (waves_list[2] + waves_list[3]) / 2
-        if alpha == 0: # to avoid division by 0
-            our_att_ratio = 2
-        else:
-            our_att_ratio = gamma/alpha
-        return our_att_ratio
-
-    # If the headset is not connected, return the recorded value for the given time
-    else:
-        return nearest_recorded_sample(time)["our-attention"]
-
 def get_microvolts(raw_value):
     """This method converts the raw_value to microvolts, based on the link:
     http://support.neurosky.com/kb/science/how-to-convert-raw-values-to-voltage
@@ -353,11 +325,9 @@ def get_microvolts(raw_value):
     return raw_value * (1.8/4096) / 2000 * 1000000
 
 def detect_blink():
-    """Checks if there is a blink at the current point
+    """Checks if there is a blink at the current moment
 
-    :param df: calibration dataframe containing column called "raw_value"
-    :return: calibration dataframe containing column called "raw_uv" that
-    has removed blinks
+    :return: True if a blink is detected, False if no blink is detected
     """
 
     if headset is not None:
@@ -372,7 +342,7 @@ def detect_blink():
 
 def remove_blink(df):
     """Filters out blink data from calibration data, before and after the
-    peak blink.
+    peak blink
 
     :param df: calibration dataframe containing column called "raw_value"
     :return: calibration dataframe containing column called "raw_uv" that
@@ -404,11 +374,26 @@ def remove_blink(df):
     return df
 
 def get_slope_list(freq_1, freq_2, pow_1, pow_2):
-    a = (pow_2 - pow_1) / (freq_2 - freq_1)
-    b = pow_1 - a * freq_1
-    return [a, b]
+    """Obtains the slope and intercept between two (freq, pow) points
+
+    :param freq_1: frequency at first point
+    :param freq_2: frequency at second point
+    :param pow_1: power at first point
+    :param pow_2: power at second point
+    :return: a list of [slope, intercept]
+    """
+    slope = (pow_2 - pow_1) / (freq_2 - freq_1)
+    intercept = pow_1 - a * freq_1
+    return [slope, intercept]
 
 def get_avg_power(start_freq, end_freq, dataframe):
+    """Averages the power across the provided frequencies
+
+    :param start_freq: lower frequency in range
+    :param end_freq: higher frequency in range
+    :param dataframe: frequency-power dataframe
+    :return: average power across the frequency range
+    """
     pow_list = []
     for freq in range(start_freq, end_freq + 1):
         freq_df = dataframe[dataframe["freq"] <= freq]
@@ -444,8 +429,6 @@ def transform_calibration(df):
         T = 1/125  # sample spacing
         freq = fftfreq(N, T)[:N // 2]  # frequency
         power = 2.0 / N * np.abs(transformed_uv[0:N // 2])
-        # plt.plot(freq, power)
-        # plt.show()
 
         # Put FFT transform results into a dataframe
         freq_pow_df = pd.DataFrame(data={'freq': freq, 'power': power})

@@ -1,3 +1,6 @@
+"""This file contains the methods for calibrating the attention level of the individual
+from the maths calibration phase."""
+
 from neurosky import interface
 import time
 
