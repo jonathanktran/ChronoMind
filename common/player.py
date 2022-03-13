@@ -4,7 +4,8 @@ import pygame as pg
 from display import display
 from misc import lines_within_range
 
-
+IMAGE = pg.image.load('../assets/sprites/player.png').convert_alpha()
+IMAGE = pg.transform.scale(IMAGE, (85, 56))
 class Player:
     """The player object is controlled by the player."""
 
@@ -19,8 +20,13 @@ class Player:
         self.x = x
         self.y = y
         self.color = (255, 0, 0)
-        self.radius = 16
+        self.radius = 20
         self.lives = 3
+        self.image = IMAGE
+        self.rect = self.image.get_rect()
+
+
+
 
     def step(self, dt, enemies):
         """This runs every frame.
@@ -32,6 +38,8 @@ class Player:
         # Find the distance of the player to the mouse
         x_diff = pg.mouse.get_pos()[0] - self.x
         y_diff = pg.mouse.get_pos()[1] - self.y
+
+        # Health bar variables
 
         # Check for enemy collisions
         for enemy in enemies:
@@ -49,6 +57,4 @@ class Player:
         # Set the player to the mouse position
         self.x, self.y = pg.mouse.get_pos()
 
-    def draw(self):
-        """Draw the player to the screen"""
-        pg.draw.circle(display, (255, 0, 0), (self.x, self.y), self.radius)
+

@@ -13,6 +13,7 @@ import platform
 from neurosky import interface
 
 
+
 # Connect to Neurosky headset
 interface.connect(platform.system())
 
@@ -27,6 +28,7 @@ audio.wf.setpos(6400)
 
 # This variable tracks whether the game has been told to stop
 stop = False
+
 
 # Create the music thread
 music_thread = threading.Thread(target=audio.play)
@@ -52,3 +54,4 @@ interface.disconnect()
 
 # Close the window
 pg.quit()
+

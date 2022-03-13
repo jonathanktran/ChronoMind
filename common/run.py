@@ -8,6 +8,11 @@ import math
 import timeline
 import attention
 from neurosky.interface import get_attention
+from run_homescreen import run_homescreen
+BGIMAGE = pg.image.load('../assets/sprites/background.jpg').convert_alpha()
+GOIMAGE = pg.image.load('../assets/sprites/game_over.png').convert_alpha()
+r = GOIMAGE.get_rect()
+r.center = display.get_rect().center
 
 
 def run(player, enemies, rounds, audio):
@@ -136,36 +141,44 @@ def run(player, enemies, rounds, audio):
         # region Drawing
 
         # Draw the background
-        display.fill((255, 255, 255))
+
+        display.blit(BGIMAGE, (0, 0))
 
         # Draw the player
-        player.draw()
+        display.blit(player.image, (player.x, player.y))
 
         # Draw all enemies
         for enemy in enemies.values():
-            enemy.draw()
+            display.blit(enemy.image, (enemy.x, enemy.y))
 
         # region Draw the HUD
 
         # Draw the number of lives
-        lives_surface = fonts.HUD.render('Lives: ' + str(player.lives), False, (0, 0, 0))
-        display.blit(lives_surface, (32, 32))
+
+        pg.draw.rect(display, (255, 0, 0),(10, 10, player.lives * 100, 25))
+        pg.draw.rect(display, (255, 255, 255), (10, 10, 300, 25), 4)
+
+        # If the player runs out of lives, end game and return to home screen
+        if player.lives == 0:
+            display.blit(GOIMAGE, r)
+            pg.display.flip()
+            pg.event.pump()
+            pg.time.delay(2000)
+            return True
+
+
 
         # Draw the time
-        time_surface = fonts.HUD.render('Time: ' + str(math.floor(time/1000)), False, (0, 0, 0))
+        time_surface = fonts.HUD.render('Time: ' + str(math.floor(time/1000)), False, (255, 255, 255))
         display.blit(time_surface, (DISPLAY_WIDTH - time_surface.get_width() - 32, 32))
 
         # Draw the time multiplier
-        time_mult_surface = fonts.HUD.render('Time Multiplier: ' + "{:.2f}".format(time_control.time_mult), False, (0, 0, 0))
+        time_mult_surface = fonts.HUD.render('Time Multiplier: ' + "{:.2f}".format(time_control.time_mult), False, (255, 255, 255))
         display.blit(time_mult_surface, (DISPLAY_WIDTH/2 - time_mult_surface.get_width()/2, 32))
 
         # Draw the time multiplier
-        attention_surface = fonts.HUD.render('Attention: ' + str(builtins.round(current_attention)), False, (0, 0, 0))
+        attention_surface = fonts.HUD.render('Attention: ' + str(builtins.round(current_attention)), False, (255, 255, 255))
         display.blit(attention_surface, (32, DISPLAY_HEIGHT - attention_surface.get_height() - 32))
-
-        # endregion Draw the HUD
-
-        # endregion Drawing
 
         # Update the window
         pg.display.update()
