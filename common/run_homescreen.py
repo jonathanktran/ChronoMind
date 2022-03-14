@@ -16,10 +16,10 @@ def run_credits():
     window = pg.display.set_mode((0,0), pg.FULLSCREEN)
     text = fonts.BACK.render("Credits", True, color.WHITE)
     text2 = fonts.CREDITSTEXT.render("~ Level & Graphic Design by Jeff & Jonny", True, color.WHITE)
-    text3 = fonts.CREDITSTEXT.render("~ Audio Wavelet Transforms (Music) by Will", True, color.WHITE)
-    text4 = fonts.CREDITSTEXT.render("~ Extracting raw EEG data by Meghana & Jonny", True, color.WHITE)
-    text5 = fonts.CREDITSTEXT.render("~ Game Design and Implementation by Will & Zytal", True, color.WHITE)
-    text6 = fonts.CREDITSTEXT.render("~ Home Screen and Headset Calibration by Will & Janty", True, color.WHITE)
+    text3 = fonts.CREDITSTEXT.render("~ Extracting raw EEG data by Meghana & Jonny", True, color.WHITE)
+    text4 = fonts.CREDITSTEXT.render("~ Game Design and Implementation by Will & Zytal", True, color.WHITE)
+    text5 = fonts.CREDITSTEXT.render("~ Home Screen Design and Menu Buttons by Will & Janty", True, color.WHITE)
+    text6 = fonts.CREDITSTEXT.render("~ Headset Calibration and Audio Wavelet Transforms (Music) by Will", True, color.WHITE)
     text7= fonts.CREDITSTEXT.render("~ Smoothing & Filtering Raw EEG data to get Attention Level Measure"
                                      "and Baseline Attention by Meghana", True, color.WHITE)
 
