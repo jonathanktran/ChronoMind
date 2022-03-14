@@ -1,5 +1,4 @@
 """This file contains the run function, which runs the homescreen portion of the game."""
-import pygame
 
 from display import *
 import fonts
@@ -7,21 +6,105 @@ from gui import Button
 import color
 
 
+def run_options(audio):
+
+    # Create the window
+    window = pg.display.set_mode((0, 0), pg.FULLSCREEN)
+
+    # The button to go back to the homescreen
+    back = Button((DISPLAY_WIDTH/9, DISPLAY_HEIGHT/8), (DISPLAY_WIDTH/9, DISPLAY_HEIGHT/9), color.ORANGE,
+                  color.WHITE, fonts.BACK.render('Back', True, color.BLACK), border_radius=16)
+
+    # The button to increase the volume
+    inc_vol = Button((DISPLAY_WIDTH/4, DISPLAY_HEIGHT/2), (DISPLAY_WIDTH/4.5, DISPLAY_HEIGHT/4.5), color.ORANGE,
+                  color.WHITE, fonts.BACK.render('Decrease Volume', True, color.BLACK), border_radius=16)
+
+    # The button to increase the volume
+    dec_vol = Button((DISPLAY_WIDTH * (3/4), DISPLAY_HEIGHT/2), (DISPLAY_WIDTH/4.5, DISPLAY_HEIGHT/4.5), color.ORANGE,
+                  color.WHITE, fonts.BACK.render('Increase Volume', True, color.BLACK), border_radius=16)
+
+    # Run the game until it is quit
+    while True:
+
+        # region Events
+
+        # Check for events
+        for event in pg.event.get():
+
+            # If the game is quit, end the game
+            if event.type == pg.QUIT:
+                return True
+
+            # Check for keyboard presses
+            if event.type == pg.KEYDOWN:
+
+                # End the game if the escape key is pressed
+                if event.key == pg.K_ESCAPE:
+                    return True
+
+            # Check if the mouse is pressed
+            if event.type == pg.MOUSEBUTTONDOWN:
+
+                # Check button presses if the left mouse button in pressed
+                if event.button == pg.BUTTON_LEFT:
+
+                    # Go back to the homescreen if the back button is pressed
+                    if back.press(pg.mouse.get_pos()):
+                        return False
+
+                    # Increase the volume if in the increase volume button is pressed
+                    if inc_vol.press(pg.mouse.get_pos()):
+                        audio.set_volume(max(0, audio.volume - 0.01))
+
+                    # Decrease the volume if in the decrease volume button is pressed
+                    if dec_vol.press(pg.mouse.get_pos()):
+                        audio.set_volume(min(0.2, audio.volume + 0.01))
+
+
+        # endregion Events
+
+        # region Draw the HUD
+
+        # Draw the background
+        display.fill((195, 148, 255))
+
+        # Draw all buttons
+        if back.press(pg.mouse.get_pos()): back.draw_hover()
+        else: back.draw_unhover()
+
+        if inc_vol.press(pg.mouse.get_pos()): inc_vol.draw_hover()
+        else: inc_vol.draw_unhover()
+
+        if dec_vol.press(pg.mouse.get_pos()): dec_vol.draw_hover()
+        else: dec_vol.draw_unhover()
+
+        # Draw the current volume
+        text = fonts.HUD.render(f'{round(audio.volume * 500)}%', True, color.BLACK)
+        window.blit(text, (DISPLAY_WIDTH/2 - text.get_width()/2, DISPLAY_HEIGHT/2 - text.get_height()/2))
+
+        # Draw the mouse
+        pg.draw.circle(display, color.DARKGREEN, pg.mouse.get_pos(), 16)
+
+        # endregion Draw the HUD
+
+        # Update the window
+        pg.display.update()
+
+
 def run_credits():
 
-    # Create a list of buttons
-    back = Button((DISPLAY_WIDTH / 9, DISPLAY_HEIGHT / 8), (DISPLAY_WIDTH / 9, DISPLAY_HEIGHT / 9), color.ORANGE,
-                  color.WHITE, fonts.BACK.render('Back', True, color.BLACK))
+    # Create the window
+    window = pg.display.set_mode((0, 0), pg.FULLSCREEN)
 
-    window = pg.display.set_mode((0,0), pg.FULLSCREEN)
-    text = fonts.BACK.render("Credits", True, color.WHITE)
-    text2 = fonts.CREDITSTEXT.render("~ Level & Graphic Design by Jeff & Jonny", True, color.WHITE)
-    text3 = fonts.CREDITSTEXT.render("~ Extracting raw EEG data by Meghana & Jonny", True, color.WHITE)
-    text4 = fonts.CREDITSTEXT.render("~ Game Design and Implementation by Will & Zytal", True, color.WHITE)
-    text5 = fonts.CREDITSTEXT.render("~ Home Screen Design and Menu Buttons by Will & Janty", True, color.WHITE)
-    text6 = fonts.CREDITSTEXT.render("~ Headset Calibration and Audio Wavelet Transforms (Music) by Will", True, color.WHITE)
-    text7= fonts.CREDITSTEXT.render("~ Smoothing & Filtering Raw EEG data to get Attention Level Measure"
-                                     "and Baseline Attention by Meghana", True, color.WHITE)
+    # The button to go back to the homescreen
+    back = Button((DISPLAY_WIDTH/9, DISPLAY_HEIGHT/8), (DISPLAY_WIDTH/9, DISPLAY_HEIGHT/9), color.ORANGE,
+                  color.WHITE, fonts.BACK.render('Back', True, color.BLACK), border_radius=16)
+
+    # The text to display
+    text =  fonts.BACK.render("CREDITS", True, color.WHITE)
+    text2 = fonts.CREDITSTEXT.render("~ Graphic Design by Jonny and Janty ~", True, color.WHITE)
+    text3 = fonts.CREDITSTEXT.render("~ Attention Measure by Meghana & Jonny ~", True, color.WHITE)
+    text4 = fonts.CREDITSTEXT.render("~ Game Design and Implementation by Will & Zytal ~", True, color.WHITE)
 
     # Run the game until it is quit
     while True:
@@ -50,7 +133,6 @@ def run_credits():
                     if back.press(pg.mouse.get_pos()):
                         return False
 
-
         # endregion Events
 
         # region Draw the HUD
@@ -59,13 +141,10 @@ def run_credits():
         display.fill((195, 148, 255))
 
         # Adds text onto screen
-        window.blit(text, (DISPLAY_WIDTH / 2.2, DISPLAY_HEIGHT / 6.5))
-        window.blit(text2, (DISPLAY_WIDTH / 5, DISPLAY_HEIGHT / 3.8))
-        window.blit(text3, (DISPLAY_WIDTH / 5, DISPLAY_HEIGHT / 2.95))
-        window.blit(text4, (DISPLAY_WIDTH / 5, DISPLAY_HEIGHT / 2.38))
-        window.blit(text5, (DISPLAY_WIDTH / 5, DISPLAY_HEIGHT / 1.99))
-        window.blit(text6, (DISPLAY_WIDTH / 5, DISPLAY_HEIGHT / 1.71))
-        window.blit(text7, (DISPLAY_WIDTH / 5, DISPLAY_HEIGHT / 1.5))
+        window.blit(text, (DISPLAY_WIDTH/2 - text.get_width()/2, DISPLAY_HEIGHT/6.5))
+        window.blit(text2, (DISPLAY_WIDTH/2 - text2.get_width()/2, DISPLAY_HEIGHT/3.8))
+        window.blit(text3, (DISPLAY_WIDTH/2 - text3.get_width()/2, DISPLAY_HEIGHT/2.95))
+        window.blit(text4, (DISPLAY_WIDTH/2 - text4.get_width()/2, DISPLAY_HEIGHT/2.38))
 
         # Draw all buttons
         if back.press(pg.mouse.get_pos()): back.draw_hover()
@@ -80,22 +159,26 @@ def run_credits():
         pg.display.update()
 
 
-
-
-def run_homescreen():
+def run_homescreen(audio):
     """This function is a loop which runs a number of times per second, given by the FPS value in display.
     This displays the homescreen portion of the game.
     """
 
-    # Create a list of buttons
-    play = Button((DISPLAY_WIDTH / 2, DISPLAY_HEIGHT/3), (DISPLAY_WIDTH / 8, DISPLAY_HEIGHT / 8), color.ORANGE,
-                  color.WHITE, fonts.HUD.render('Play', True, color.BLACK))
+    # The button used to start the game
+    play = Button((DISPLAY_WIDTH/2, DISPLAY_HEIGHT * (8/24)), (DISPLAY_WIDTH/8, DISPLAY_HEIGHT/8), color.ORANGE,
+                  color.WHITE, fonts.HUD.render('Play', True, color.BLACK), border_radius=16)
 
-    credits = Button((DISPLAY_WIDTH / 2, DISPLAY_HEIGHT /2), (DISPLAY_WIDTH / 8, DISPLAY_HEIGHT / 8), color.ORANGE,
-               color.WHITE, fonts.CREDITS.render('Credits', True, color.BLACK))
+    # The button used to go to the credits page
+    options = Button((DISPLAY_WIDTH/2, DISPLAY_HEIGHT * (12/24)), (DISPLAY_WIDTH/8, DISPLAY_HEIGHT/8), color.ORANGE,
+               color.WHITE, fonts.CREDITS.render('Options', True, color.BLACK), border_radius=16)
 
-    quit = Button((DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 1.5), (DISPLAY_WIDTH / 8, DISPLAY_HEIGHT / 8), color.ORANGE,
-               color.WHITE, fonts.QUIT.render('Quit', True, color.BLACK))
+    # The button used to go to the credits page
+    credits = Button((DISPLAY_WIDTH/2, DISPLAY_HEIGHT * (16/24)), (DISPLAY_WIDTH/8, DISPLAY_HEIGHT/8), color.ORANGE,
+               color.WHITE, fonts.CREDITS.render('Credits', True, color.BLACK), border_radius=16)
+
+    # The button used to quit the game
+    quit = Button((DISPLAY_WIDTH/2, DISPLAY_HEIGHT * (20/24)), (DISPLAY_WIDTH/8, DISPLAY_HEIGHT/8), color.ORANGE,
+               color.WHITE, fonts.QUIT.render('Quit', True, color.BLACK), border_radius=16)
 
     # Run the game until it is quit
     while True:
@@ -107,31 +190,38 @@ def run_homescreen():
 
             # If the game is quit, end the game
             if event.type == pg.QUIT:
-                return True
+                return True, 0
 
             # Check for keyboard presses
             if event.type == pg.KEYDOWN:
 
                 # End the game if the escape key is pressed
                 if event.key == pg.K_ESCAPE:
-                    return True
+                    return True, 0
 
             # Check if the mouse is pressed
             if event.type == pg.MOUSEBUTTONDOWN:
 
                 # Check button presses if the left mouse button in pressed
                 if event.button == pg.BUTTON_LEFT:
+
+                    # Play the game if the play button is pressed
                     if play.press(pg.mouse.get_pos()):
-                        return False
+                        return False, audio.volume
 
-                    if quit.press(pg.mouse.get_pos()):
-                        return True
+                    # Enter the options function if the options button is pressed
+                    if options.press(pg.mouse.get_pos()):
+                        if run_options(audio):
+                            return True, 0
 
+                    # Enter the credits function if the credits button is pressed
                     if credits.press(pg.mouse.get_pos()):
                         if run_credits():
-                            return True
+                            return True, 0
 
-
+                    # Quit the game if the quit button is pressed
+                    if quit.press(pg.mouse.get_pos()):
+                        return True, 0
 
         # endregion Events
 
@@ -143,6 +233,9 @@ def run_homescreen():
         # Draw all buttons
         if play.press(pg.mouse.get_pos()): play.draw_hover()
         else: play.draw_unhover()
+
+        if options.press(pg.mouse.get_pos()): options.draw_hover()
+        else: options.draw_unhover()
 
         if credits.press(pg.mouse.get_pos()): credits.draw_hover()
         else: credits.draw_unhover()

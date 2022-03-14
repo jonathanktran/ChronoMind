@@ -3,11 +3,12 @@ Enemies are objects which harm or kill the player during gameplay. They are spaw
 Each enemy must be added to the enemies dictionary when created, and must be removed when destroyed.
 """
 
-from display import *
 import pygame as pg
 import display
 import color
 import math
+from random import uniform, randrange
+from misc import rot_image
 IMAGE = pg.image.load('../assets/sprites/asteroid_1.png').convert_alpha()
 IMAGE = pg.transform.scale(IMAGE, (50, 50))
 
@@ -113,14 +114,19 @@ class Bullet(Enemy):
         self.x_vel = velocity[0]
         self.y_vel = velocity[1]
         self.radius = 24
-        self.image = IMAGE
-        self.rect = self.image.get_rect()
+        self.image = IMAGE.copy()
+        self.image.fill(color.RED, None, pg.BLEND_RGB_MULT)
+        self.rotation = randrange(0, 360, 1)
+        self.rot_spd = uniform(-1.44, 1.44)
 
     def step(self, dt):
         """This runs every frame
 
         :param dt: The amount of time since the previous frame
         """
+
+        # Rotate the enemy
+        self.rotation += self.rot_spd
 
         # Move the bullet
         self.x += dt/1000 * self.x_vel
@@ -140,7 +146,7 @@ class Bullet(Enemy):
 
     def draw(self, display):
         """Draw the bullet to the screen"""
-        display.blit(self.image, (self.x, self.y))
+        display.blit(rot_image(self.image, self.rotation), (self.x, self.y))
 
 
 class BlinkBullet(Enemy):
@@ -174,16 +180,21 @@ class BlinkBullet(Enemy):
         self.y = position[1] + self.norm_vec[1]
         self.x_vel = velocity[0]
         self.y_vel = velocity[1]
-        self.color = color
         self.radius = 8
         self.position_time = 0
-        self.image = IMAGE
+        self.image = IMAGE.copy()
+        self.image.fill(color.GREEN, None, pg.BLEND_RGB_MULT)
+        self.rotation = randrange(0, 360, 1)
+        self.rot_spd = uniform(-1.44, 1.44)
 
     def step(self, dt):
         """This runs every frame
 
         :param dt: The amount of time since the previous frame
         """
+
+        # Rotate the enemy
+        self.rotation += self.rot_spd
 
         # Increment the position time
         self.position_time += dt
@@ -219,7 +230,7 @@ class BlinkBullet(Enemy):
 
     def draw(self, display):
         """Draw the bullet to the screen"""
-        display.blit(self.image, (self.x, self.y))
+        display.blit(rot_image(self.image, self.rotation), (self.x, self.y))
 
 
 class WaveBullet(Enemy):
@@ -239,7 +250,6 @@ class WaveBullet(Enemy):
 
         :param position: The starting (x, y) position tuple of the bullet
         :param velocity: The (x, y) velocity tuple of the bullet
-        :param color: The color of the bullet
         """
 
         super().__init__()
@@ -255,16 +265,21 @@ class WaveBullet(Enemy):
         self.real_y = self.y
         self.x_vel = velocity[0]
         self.y_vel = velocity[1]
-        self.color = color
         self.radius = 8
         self.position_time = 0
-        self.image = IMAGE
+        self.image = IMAGE.copy()
+        self.image.fill(color.BLUE, None, pg.BLEND_RGB_MULT)
+        self.rotation = randrange(0, 360, 1)
+        self.rot_spd = uniform(-1.44, 1.44)
 
     def step(self, dt):
         """This runs every frame
 
         :param dt: The amount of time since the previous frame
         """
+
+        # Rotate the enemy
+        self.rotation += self.rot_spd * dt
 
         # Increment the position time
         self.position_time += dt
@@ -296,6 +311,6 @@ class WaveBullet(Enemy):
 
     def draw(self, display):
         """Draw the bullet to the screen"""
-        display.blit(self.image, (self.x, self.y))
+        display.blit(rot_image(self.image, self.rotation), (self.x, self.y))
 
 # endregion Enemy Classes

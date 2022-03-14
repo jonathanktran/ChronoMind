@@ -1,9 +1,7 @@
 """This file defines the player object"""
 
 import pygame as pg
-from display import display
 from misc import lines_within_range
-import color
 from math import cos, pi
 
 

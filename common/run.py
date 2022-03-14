@@ -125,7 +125,7 @@ def run(player, enemies, rounds, calibration_setting, att_object):
             pg.display.flip()
             pg.event.pump()
             pg.time.delay(2000)
-            return True
+            return False
 
         # Draw the time
         time_surface = fonts.HUD.render('Time: ' + str(math.floor(time/1000)), False, (255, 255, 255))

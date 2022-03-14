@@ -1,6 +1,7 @@
 """This file contains miscellaneous functions"""
 
 import math
+import pygame as pg
 
 
 def clamp(min_value, max_value, value):
@@ -104,3 +105,18 @@ def linear_map_range(from_low, from_high, to_low, to_high, x):
 
     return ((to_high - to_low) / (from_high - from_low)) * (x - from_low) + to_low
 
+
+def rot_image(image, angle):
+    """Returns a rotated copy of a given image, with the same size and position
+
+    :param image: The image object to rotate
+    :param angle: The angle of the image
+    :return rot_image: The rotated image
+    """
+
+    orig_rect = image.get_rect()
+    rot_image = pg.transform.rotate(image, angle)
+    rot_rect = orig_rect.copy()
+    rot_rect.center = rot_image.get_rect().center
+    rot_image = rot_image.subsurface(rot_rect).copy()
+    return rot_image

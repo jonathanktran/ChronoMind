@@ -11,18 +11,22 @@ class Button:
     """
 
     def __init__(self, position: typing.Tuple[int, int], hitbox: typing.Tuple[int, int],
-                 hover_color: typing.Tuple[int, int, int], unhover_color, text=None):
+                 hover_color: typing.Tuple[int, int, int], unhover_color, text=None, border_radius=-1):
         """Initialize the button.
 
         :param position: A tuple of integers representing the center x and y of the button
         :param hitbox: A tuple of integers, representing the width and height of the button hitbox
+        :param hover_color: The color of the button when hovered
+        :param unhover_color: The color of the button when not hovered
         :param text: The text object displayed at the center of the button
+        :param border_radius: The radius of the corners of the rectangle. If left default, the rectangle is not rounded.
         """
 
         self.position = position
         self.hover_color = hover_color
         self.unhover_color = unhover_color
         self.size = hitbox
+        self.border_radius = border_radius
 
         # region Hitbox
 
@@ -64,7 +68,8 @@ class Button:
 
         # Draw the square
         pg.draw.rect(display, self.hover_color,
-                     pg.Rect(self.hitbox_lower_x, self.hitbox_lower_y, self.size[0], self.size[1]))
+                     pg.Rect(self.hitbox_lower_x, self.hitbox_lower_y, self.size[0], self.size[1]),
+                     border_radius=self.border_radius)
 
         # Draw the text
         if self.text is not None: display.blit(self.text, self.text_pos)
@@ -75,7 +80,8 @@ class Button:
 
         # Draw the square
         pg.draw.rect(display, self.unhover_color,
-                     pg.Rect(self.hitbox_lower_x, self.hitbox_lower_y, self.size[0], self.size[1]))
+                     pg.Rect(self.hitbox_lower_x, self.hitbox_lower_y, self.size[0], self.size[1]),
+                     border_radius=self.border_radius)
 
         # Draw the text
         if self.text is not None: display.blit(self.text, self.text_pos)
