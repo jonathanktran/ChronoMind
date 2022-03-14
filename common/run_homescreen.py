@@ -6,11 +6,22 @@ import fonts
 from gui import Button
 import color
 
-def run_credits():
-    # Create a list of buttons
-    back = Button((DISPLAY_WIDTH / 9, DISPLAY_HEIGHT / 8), (DISPLAY_WIDTH / 9, DISPLAY_HEIGHT / 9), color.WHITE,
-                  fonts.BACK.render('Back', True, color.BLACK))
 
+def run_credits():
+
+    # Create a list of buttons
+    back = Button((DISPLAY_WIDTH / 9, DISPLAY_HEIGHT / 8), (DISPLAY_WIDTH / 9, DISPLAY_HEIGHT / 9), color.ORANGE,
+                  color.WHITE, fonts.BACK.render('Back', True, color.BLACK))
+
+    window = pg.display.set_mode((0,0), pg.FULLSCREEN)
+    text = fonts.BACK.render("Credits", True, color.WHITE)
+    text2 = fonts.CREDITSTEXT.render("~ Level & Graphic Design by Jeff & Jonny", True, color.WHITE)
+    text3 = fonts.CREDITSTEXT.render("~ Audio Wavelet Transforms (Music) by Will", True, color.WHITE)
+    text4 = fonts.CREDITSTEXT.render("~ Extracting raw EEG data by Meghana & Jonny", True, color.WHITE)
+    text5 = fonts.CREDITSTEXT.render("~ Game Design and Implementation by Will & Zytal", True, color.WHITE)
+    text6 = fonts.CREDITSTEXT.render("~ Home Screen and Headset Calibration by Will & Janty", True, color.WHITE)
+    text7= fonts.CREDITSTEXT.render("~ Smoothing & Filtering Raw EEG data to get Attention Level Measure"
+                                     "and Baseline Attention by Meghana", True, color.WHITE)
 
     # Run the game until it is quit
     while True:
@@ -45,13 +56,23 @@ def run_credits():
         # region Draw the HUD
 
         # Draw the background
-        display.fill((210, 173, 255))
+        display.fill((195, 148, 255))
+
+        # Adds text onto screen
+        window.blit(text, (DISPLAY_WIDTH / 2.2, DISPLAY_HEIGHT / 6.5))
+        window.blit(text2, (DISPLAY_WIDTH / 5, DISPLAY_HEIGHT / 3.8))
+        window.blit(text3, (DISPLAY_WIDTH / 5, DISPLAY_HEIGHT / 2.95))
+        window.blit(text4, (DISPLAY_WIDTH / 5, DISPLAY_HEIGHT / 2.38))
+        window.blit(text5, (DISPLAY_WIDTH / 5, DISPLAY_HEIGHT / 1.99))
+        window.blit(text6, (DISPLAY_WIDTH / 5, DISPLAY_HEIGHT / 1.71))
+        window.blit(text7, (DISPLAY_WIDTH / 5, DISPLAY_HEIGHT / 1.5))
 
         # Draw all buttons
-        back.draw()
+        if back.press(pg.mouse.get_pos()): back.draw_hover()
+        else: back.draw_unhover()
 
         # Draw the mouse
-        pg.draw.circle(display, color.GREEN, pg.mouse.get_pos(), 16)
+        pg.draw.circle(display, color.DARKGREEN, pg.mouse.get_pos(), 16)
 
         # endregion Draw the HUD
 
@@ -67,14 +88,14 @@ def run_homescreen():
     """
 
     # Create a list of buttons
-    play = Button((DISPLAY_WIDTH / 2, DISPLAY_HEIGHT/3), (DISPLAY_WIDTH / 8, DISPLAY_HEIGHT / 8), color.WHITE,
-               fonts.HUD.render('Play', True, color.BLACK))
+    play = Button((DISPLAY_WIDTH / 2, DISPLAY_HEIGHT/3), (DISPLAY_WIDTH / 8, DISPLAY_HEIGHT / 8), color.ORANGE,
+                  color.WHITE, fonts.HUD.render('Play', True, color.BLACK))
 
-    credits = Button((DISPLAY_WIDTH / 2, DISPLAY_HEIGHT /2), (DISPLAY_WIDTH / 8, DISPLAY_HEIGHT / 8), color.WHITE,
-               fonts.CREDITS.render('Credits', True, color.BLACK))
+    credits = Button((DISPLAY_WIDTH / 2, DISPLAY_HEIGHT /2), (DISPLAY_WIDTH / 8, DISPLAY_HEIGHT / 8), color.ORANGE,
+               color.WHITE, fonts.CREDITS.render('Credits', True, color.BLACK))
 
-    quit = Button((DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 1.5), (DISPLAY_WIDTH / 8, DISPLAY_HEIGHT / 8), color.WHITE,
-               fonts.QUIT.render('Quit', True, color.BLACK))
+    quit = Button((DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 1.5), (DISPLAY_WIDTH / 8, DISPLAY_HEIGHT / 8), color.ORANGE,
+               color.WHITE, fonts.QUIT.render('Quit', True, color.BLACK))
 
     # Run the game until it is quit
     while True:
@@ -117,15 +138,20 @@ def run_homescreen():
         # region Draw the HUD
 
         # Draw the background
-        display.fill((59, 210, 255))
+        display.fill((84, 216, 255))
 
         # Draw all buttons
-        play.draw()
-        credits.draw()
-        quit.draw()
+        if play.press(pg.mouse.get_pos()): play.draw_hover()
+        else: play.draw_unhover()
+
+        if credits.press(pg.mouse.get_pos()): credits.draw_hover()
+        else: credits.draw_unhover()
+
+        if quit.press(pg.mouse.get_pos()): quit.draw_hover()
+        else: quit.draw_unhover()
 
         # Draw the mouse
-        pg.draw.circle(display, color.GREEN, pg.mouse.get_pos(), 16)
+        pg.draw.circle(display, color.DARKGREEN, pg.mouse.get_pos(), 16)
 
         # endregion Draw the HUD
 
