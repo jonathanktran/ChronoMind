@@ -42,6 +42,10 @@ def run(player, enemies, rounds, calibration_setting):
     # The current time multiplier
     time_mult = 1
 
+    # Add the first 8 seconds of enemies
+    timeline.add_level(0)
+    timeline.add_level(4000)
+
     # Tick the clock once to remove delays
     clock.tick(FPS)
 
@@ -95,6 +99,9 @@ def run(player, enemies, rounds, calibration_setting):
 
         # Adjust the time by the time multiplier
         dt = dt * time_mult
+
+        # Add new enemies and rounds to the timeline every 4 seconds
+        if time % 4000 > (time + dt) % 4000: timeline.add_level(int(time) + 4000)
 
         # Find the current time
         time += dt

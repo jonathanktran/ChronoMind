@@ -24,7 +24,7 @@ player = player.Player(DISPLAY_WIDTH/2, DISPLAY_HEIGHT/2)
 
 # Create the music object
 audio = music.AudioFile('../assets/music/Megalovania.wav')
-audio.set_volume(1/2)
+audio.set_volume(1/32)
 
 # Adjust the music to remove start offset
 audio.wf.setpos(6400)
@@ -61,7 +61,6 @@ if not stop:
 
     # Calibrate the headset
     calibration_setting = attention.get_calibration_settings(calibration_dataframe)
-    print(calibration_setting)
 
 # Run the game
 if not stop: stop = run(player, enemy_list, round_list, calibration_setting)

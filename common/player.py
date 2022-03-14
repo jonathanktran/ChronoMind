@@ -3,6 +3,7 @@
 import pygame as pg
 from display import display
 from misc import lines_within_range
+import color
 
 
 class Player:
@@ -20,7 +21,8 @@ class Player:
         self.y = y
         self.color = (255, 0, 0)
         self.radius = 16
-        self.lives = 3
+        self.lives = 10
+        self.invincible_timer = 0
 
     def step(self, dt, enemies):
         """This runs every frame.
@@ -33,22 +35,42 @@ class Player:
         x_diff = pg.mouse.get_pos()[0] - self.x
         y_diff = pg.mouse.get_pos()[1] - self.y
 
-        # Check for enemy collisions
-        for enemy in enemies:
+        # Decrement the invincibility timer
+        self.invincible_timer = max(self.invincible_timer - dt, 0)
 
-            # Find whether the enemy collides with the player
-            collision = lines_within_range((x_diff, y_diff), (self.x, self.y),
-                                              enemy.get_velocity(dt), (enemy.x, enemy.y),
-                                              self.radius + enemy.radius)
+        # Do not check collisions if the player is invincible
+        if self.invincible_timer == 0:
 
-            # If the player collides with the enemy
-            if collision:
-                enemy.collide()
-                self.lives = self.lives - 1
+            # Check for enemy collisions
+            for enemy in enemies:
+
+                # Find whether the enemy collides with the player
+                collision = lines_within_range((x_diff, y_diff), (self.x, self.y),
+                                                  enemy.get_velocity(dt), (enemy.x, enemy.y),
+                                                  self.radius + enemy.radius)
+
+                # If the player collides with the enemy
+                if collision:
+
+                    # Run the enemy's collision event
+                    enemy.collide()
+
+                    # Lose a life
+                    self.lives = self.lives - 1
+
+                    # Become invincible
+                    self.invincible_timer = 2000
 
         # Set the player to the mouse position
         self.x, self.y = pg.mouse.get_pos()
 
     def draw(self):
         """Draw the player to the screen"""
-        pg.draw.circle(display, (255, 0, 0), (self.x, self.y), self.radius)
+
+        # Draw the body
+        if self.invincible_timer == 0: pg.draw.circle(display, color.RED, (self.x, self.y), self.radius)
+        else: pg.draw.circle(display, (255,
+                                       255 * (self.invincible_timer/2000),
+                                       255 * (self.invincible_timer/2000)), (self.x, self.y), self.radius)
+        # Draw the outline
+        pg.draw.circle(display, color.BLACK, (self.x, self.y), self.radius, 1)

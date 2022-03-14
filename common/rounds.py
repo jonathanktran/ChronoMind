@@ -65,99 +65,17 @@ class Round:
         pass
 
 
-class Sprinkler(Round):
-    """This is the Sprinkler Round. It spawns enemies from its starting position, sending them outwards at a given
-    velocity. The direction of these bullets changes at a given rate, and oscillates back and forth between the minimum
-    and maximum angles."""
-
-    def __init__(self, enemy, position, vel, dir, lower_dir, upper_dir, dir_spd, color, enemy_count, dt):
-        """ Initialize the Sprinkler round.
-
-        :param enemy: The enemy class to spawn
-        :param position: The starting position of each enemy
-        :param vel: The magnitude of velocity granted to spawned enemies
-        :param dir: The starting direction of the first enemy in degrees
-        :param lower_dir: The lowest direction an enemy can go in, in degrees
-        :param upper_dir: The highest direction an enemy can go in, in degrees
-        :param dir_spd: The number of degrees that the sprinkler will change each second
-        :param color: The color of the spawned enemies
-        :param enemy_count: The number of enemies to spawn before destroying this spawner
-        :param dt: The number of ms between each enemy spawn
-        """
-        super().__init__()
-        self.enemy = enemy
-        self.x = position[0]
-        self.y = position[1]
-        self.vel = vel
-        self.dir = math.radians(dir)
-        self.lower_dir = math.radians(lower_dir)
-        self.upper_dir = math.radians(upper_dir)
-        self.dir_spd = math.radians(dir_spd)
-        self.color = color
-        self.enemy_count = enemy_count
-        self.dt = dt
-        self.time = dt
-
-    def create_enemy(self, delay):
-        """Spawn an enemy
-
-        :param delay: The amount of time this enemy is being created past the expected time
-        """
-
-        # Find the speed
-        vel_x = math.cos(self.dir) * self.vel
-        vel_y = math.sin(self.dir) * self.vel
-
-        # Spawn the enemy
-        enemies.enemy_create(self.enemy((self.x, self.y), (vel_x, vel_y), self.color), delay)
-        self.enemy_count = self.enemy_count - 1
-
-        # Check if the round is finished
-        if self.enemy_count == 0:
-            round_destroy(self)
-
-        # Increment the direction
-        if self.dir_spd < 0:
-            if self.dir < self.lower_dir:
-                self.dir_spd *= -1
-                self.dir -= self.lower_dir - self.dir
-        else:
-            if self.dir > self.upper_dir:
-                self.dir_spd *= -1
-                self.dir -= self.dir - self.upper_dir
-
-    def step(self, dt):
-        """This runs every frame
-
-        :param dt: The amount of time since the previous frame
-        """
-
-        # Increment the time
-        self.time = self.time + dt
-
-        # Increment the direction
-        self.dir += self.dir_spd * dt / 1000
-
-        # If it is time for an enemy to spawn...
-        if self.time > self.dt:
-
-            # Create an enemy
-            self.create_enemy(self.time - self.dt)
-
-            # Reset the timer
-            self.time -= self.dt
-
-
 class Straight(Round):
     """This is the Straight Round. It spawns enemies from its starting position, sending them outwards at a given
      velocity. These enemies travel in a straight line."""
 
-    def __init__(self, enemy, position, velocity, color, enemy_count, dt):
+    def __init__(self, enemy, position, velocity, direction, color, enemy_count, dt):
         """Initialize the Straight Round
 
         :param enemy: The enemy class to spawn
         :param position: The starting position of each enemy
         :param velocity: The velocity of each enemy
+        :param direction: The direction of each enemy
         :param color: The color of the spawned enemies
         :param enemy_count: The number of enemies to spawn before destroying this spawner
         :param dt: The number of ms between each enemy spawn
@@ -167,8 +85,8 @@ class Straight(Round):
         self.enemy = enemy
         self.x = position[0]
         self.y = position[1]
-        self.vel_x = velocity[0]
-        self.vel_y = velocity[1]
+        self.vel_x = velocity * math.cos(math.radians(direction))
+        self.vel_y = velocity * math.sin(math.radians(direction))
         self.color = color
         self.enemy_count = enemy_count
         self.dt = dt
@@ -207,21 +125,105 @@ class Straight(Round):
             self.time -= self.dt
 
 
+class Sprinkler(Round):
+    """This is the Sprinkler Round. It spawns enemies from its starting position, sending them outwards at a given
+    velocity. The direction of these bullets changes at a given rate, and oscillates back and forth between the minimum
+    and maximum angles."""
+
+    def __init__(self, enemy, position, velocity, direction, lower_dir, upper_dir, dir_spd, color, enemy_count, dt):
+        """ Initialize the Sprinkler round.
+
+        :param enemy: The enemy class to spawn
+        :param position: The starting position of each enemy
+        :param velocity: The magnitude of velocity granted to spawned enemies
+        :param direction: The starting direction of the first enemy in degrees
+        :param lower_dir: The lowest direction an enemy can go in, in degrees
+        :param upper_dir: The highest direction an enemy can go in, in degrees
+        :param dir_spd: The number of degrees that the sprinkler will change each second
+        :param color: The color of the spawned enemies
+        :param enemy_count: The number of enemies to spawn before destroying this spawner
+        :param dt: The number of ms between each enemy spawn
+        """
+        super().__init__()
+        self.enemy = enemy
+        self.x = position[0]
+        self.y = position[1]
+        self.velocity = velocity
+        self.direction = math.radians(direction)
+        self.lower_dir = math.radians(lower_dir)
+        self.upper_dir = math.radians(upper_dir)
+        self.dir_spd = math.radians(dir_spd)
+        self.color = color
+        self.enemy_count = enemy_count
+        self.dt = dt
+        self.time = dt
+
+    def create_enemy(self, delay):
+        """Spawn an enemy
+
+        :param delay: The amount of time this enemy is being created past the expected time
+        """
+
+        # Find the speed
+        vel_x = math.cos(self.direction) * self.velocity
+        vel_y = math.sin(self.direction) * self.velocity
+
+        # Spawn the enemy
+        enemies.enemy_create(self.enemy((self.x, self.y), (vel_x, vel_y), self.color), delay)
+        self.enemy_count = self.enemy_count - 1
+
+        # Check if the round is finished
+        if self.enemy_count == 0:
+            round_destroy(self)
+
+        # Increment the direction
+        if self.dir_spd < 0:
+            if self.direction < self.lower_dir:
+                self.dir_spd *= -1
+                self.direction -= self.lower_dir - self.direction
+        else:
+            if self.direction > self.upper_dir:
+                self.dir_spd *= -1
+                self.direction -= self.direction - self.upper_dir
+
+    def step(self, dt):
+        """This runs every frame
+
+        :param dt: The amount of time since the previous frame
+        """
+
+        # Increment the time
+        self.time = self.time + dt
+
+        # Increment the direction
+        self.direction += self.dir_spd * dt / 1000
+
+        # If it is time for an enemy to spawn...
+        if self.time > self.dt:
+
+            # Create an enemy
+            self.create_enemy(self.time - self.dt)
+
+            # Reset the timer
+            self.time -= self.dt
+
+
 class Row(Round):
     """This is the Row Round. It spawns enemies from its starting position, sending them outwards at a given
      velocity. These enemies travel in a straight line. This row moves linearly over time between two points."""
 
-    def __init__(self, enemy, enemy_velocity, color, enemy_count, starting_position, position_1, position_2, velocity, dt):
+    def __init__(self, enemy, position, velocity, direction, color, enemy_count, position_1, position_2, pos_spd, dt):
         """Initialize the Straight Round
 
         :param enemy: The enemy class to spawn
-        :param enemy_velocity: The velocity of each enemy
+        :param position: The starting position, where 0 is pos_1, and 1 is pos_2
+        :param velocity: The magnitude of velocity of each enemy
+        :param direction: The direction of each enemy
         :param color: The color of the spawned enemies
         :param enemy_count: The number of enemies to spawn before destroying this spawner
-        :param starting_position: The starting position, where 0 is pos_1, and 1 is pos_2
         :param position_1: An (x, y) tuple representing the first bound of the round's motion
         :param position_2: An (x, y) tuple representing the second bound of the round's motion
-        :param velocity: The velocity of the round, between -1 and 1.
+        :param pos_spd: The number of seconds it takes to go from pos_1 to pos_2
         :param dt: The number of ms between each enemy spawn
         """
 
@@ -229,14 +231,15 @@ class Row(Round):
         self.enemy = enemy
         self.x = position_1[0]
         self.y = position_1[1]
-        self.vel_x = enemy_velocity[0]
-        self.vel_y = enemy_velocity[1]
+        self.vel_x = velocity * math.cos(math.radians(direction))
+        self.vel_y = velocity * math.sin(math.radians(direction))
         self.color = color
         self.enemy_count = enemy_count
-        self.position = starting_position
+        self.position = (position[0] - position_1[0]) / (position_2[0] - position_1[0]) if (position_1[0] != position_2[0]) \
+                        else (position[1] - position_1[1]) / (position_2[1] - position_1[1])
         self.position_1 = position_1
         self.position_2 = position_2
-        self.velocity = velocity
+        self.pos_spd = pos_spd
         self.dt = dt
         self.time = dt
 
@@ -261,15 +264,15 @@ class Row(Round):
         """
 
         # Find the position of the round
-        self.position += self.velocity * dt
+        self.position += (dt/1000) / self.pos_spd
 
         # If the position is above 1 or below 0, account for the extra component
         if self.position > 1:
             self.position = 1 - (self.position - 1)
-            self.velocity = -self.velocity
+            self.pos_spd = -self.pos_spd
         elif self.position < 0:
             self.position = -self.position
-            self.velocity = -self.velocity
+            self.pos_spd = -self.pos_spd
 
         # Calculate the new x and y coordinates
         self.x = self.position_1[0] + (self.position * (self.position_2[0] - self.position_1[0]))

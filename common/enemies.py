@@ -1,10 +1,12 @@
 """This file contains all enemy objects, and their relevant functions.
 Enemies are objects which harm or kill the player during gameplay. They are spawned by Rounds.
-Each enemy must be added to the enemies dictionary when created, and must be removed when destroyed."""
-import math
+Each enemy must be added to the enemies dictionary when created, and must be removed when destroyed.
+"""
 
+import math
 import pygame as pg
 import display
+import color
 
 
 # region Enemy List
@@ -134,7 +136,7 @@ class Bullet(Enemy):
 
     def draw(self):
         """Draw the bullet to the screen"""
-        pg.draw.circle(display.display, self.color, (self.x, self.y), self.radius)
+        pg.draw.circle(display.display, color.RED, (self.x, self.y), self.radius)
 
     def copy(self):
         """Return a copy of this instance"""
@@ -217,7 +219,7 @@ class BlinkBullet(Enemy):
     def draw(self):
         """Draw the bullet to the screen"""
 
-        pg.draw.circle(display.display, self.color, (self.x, self.y), self.radius)
+        pg.draw.circle(display.display, color.GREEN, (self.x, self.y), self.radius)
 
     def copy(self):
         """Return a copy of this instance"""
@@ -251,8 +253,8 @@ class WaveBullet(Enemy):
         self.norm_vec = ((-self.WAVE_SIZE * velocity[1]) / mag, (self.WAVE_SIZE * velocity[0]) / mag)
 
         self.id = None
-        self.x = position[0] + self.norm_vec[0]
-        self.y = position[1] + self.norm_vec[1]
+        self.x = position[0]
+        self.y = position[1]
         self.real_x = self.x
         self.real_y = self.y
         self.x_vel = velocity[0]
@@ -289,7 +291,7 @@ class WaveBullet(Enemy):
 
     def get_velocity(self, dt):
         """Returns the velocity (vel_x, vel_y) tuple of the enemy."""
-        return self.x_vel * dt / 1000, self.y_vel * dt / 1000
+        return self.x_vel * dt / 1000, math.cos(self.position_time * (self.WAVE_RATE * (2 * math.pi))) * dt / 1000
 
     def collide(self):
         """This runs when the enemy collides with the player"""
@@ -298,7 +300,7 @@ class WaveBullet(Enemy):
     def draw(self):
         """Draw the bullet to the screen"""
 
-        pg.draw.circle(display.display, self.color, (self.x, self.y), self.radius)
+        pg.draw.circle(display.display, color.BLUE, (self.x, self.y), self.radius)
 
     def copy(self):
         """Return a copy of this instance"""
