@@ -8,14 +8,14 @@ import timeline
 import attention
 import neurosky.interface as interface
 
-
-def run(player, enemies, rounds, calibration_setting):
+def run(player, enemies, rounds, calibration_setting, att_object):
     """This function is a loop which runs a number of times per second, given by the FPS value in display.
 
     :param player: The player object
     :param enemies: A dictionary of all current enemies. The keys are the enemies' corresponding  id numbers.
     :param rounds: A dictionary of all current rounds. The keys rae the rounds' corresponding id numbers.
     :param calibration_setting: The settings used to calibrate the attention bounds.
+    :param att_object: The object of the class AttentionMeasure measuring the current attention
     """
 
     # Store the current time
@@ -25,19 +25,19 @@ def run(player, enemies, rounds, calibration_setting):
     realtime = 0
 
     # Store the list of attention measurements and their times (attention, time)
-    attention_measurements = [(interface.get_attention(0), -1500), (interface.get_attention(0), -500)]
-
-    # Store the extrapolated attention values at the time of the most recent attention measure
-    extrapolated_attention = attention_measurements[0][0]
-
+    # attention_measurements = [(interface.get_attention(0), -1500), (interface.get_attention(0), -500)]
+    #
+    # # Store the extrapolated attention values at the time of the most recent attention measure
+    # extrapolated_attention = attention_measurements[0][0]
+    #
     # Store the current attention
-    current_attention = attention_measurements[0][0]
+    # current_attention = attention_measurements[0][0]
 
     # Start the first timeline, if there is any
     timeline.check(0, 1)
 
-    # Set the attention to read from the calibration file if the headset is not connected
-    interface.set_file("../neurosky/data/game_1_min.csv")
+    # # Set the attention to read from the gameplay calibration file if the headset is not connected
+    # interface.set_file("../neurosky/data/game_1_min.csv")
 
     # The current time multiplier
     time_mult = 1
@@ -49,6 +49,12 @@ def run(player, enemies, rounds, calibration_setting):
     # Tick the clock once to remove delays
     clock.tick(FPS)
 
+    # # Attention array to store last 10 attention values from headset
+    # att_list = []
+    #
+    # # Get baseline attention level mean and standard deviation as list [mean, sd]
+    # baseline_list = interface.get_baseline("../neurosky/data/calibration.csv")
+
     # Run the game until it is quit
     while True:
 
@@ -58,43 +64,52 @@ def run(player, enemies, rounds, calibration_setting):
         # Store the real amount of time that has passed
         realtime += dt
 
-        # region Attention
-
-        # Find the latest attention measurement
-        latest_attention_measure = attention_measurements[len(attention_measurements)-1]
-
-        # If more than 900 ms have passed, check the attention measure for updates
-        if realtime - latest_attention_measure[1] > 900:
-
-            # If the time difference is greater than 600 ms, assume that the latest measure is the same as the old one
-            if realtime - latest_attention_measure[1] > 1100:
-
-                # Add a new latest attention measure
-                attention_measurements.append((latest_attention_measure[0], latest_attention_measure[1] + 1000))
-
-                # Store the current attention for extrapolation
-                extrapolated_attention = current_attention
-
-            # Get the current attention
-            current_attention = interface.get_attention(realtime / 1000)
-
-            # If the current attention is different, update the latest attention measure
-            if current_attention != latest_attention_measure[0]:
-
-                # Add a new latest attention measure
-                attention_measurements.append((current_attention, realtime))
-
-        # Extrapolate the attention value so that it meets the most recent attention measure 500ms after reading it.
-        current_attention = attention.get_interpolated_attention(
-            attention_measurements[len(attention_measurements) - 1][0],
-            extrapolated_attention,
-            attention_measurements[len(attention_measurements) - 1][1],
-            realtime
-        )
-
-        # endregion Attention
+        # # region Attention
+        #
+        # # Find the latest attention measurement
+        # latest_attention_measure = attention_measurements[len(attention_measurements)-1]
+        #
+        # # If more than 900 ms have passed, check the attention measure for updates
+        # if realtime - latest_attention_measure[1] > 900:
+        #
+        #     # If the time difference is greater than 600 ms, assume that the latest measure is the same as the old one
+        #     if realtime - latest_attention_measure[1] > 1100:
+        #
+        #         # Add a new latest attention measure
+        #         attention_measurements.append((latest_attention_measure[0], latest_attention_measure[1] + 1000))
+        #
+        #     #     # Store the current attention for extrapolation
+        #     #     extrapolated_attention = current_attention
+        #
+        # # If a blink is detected, wait before continuing trying to update att_list
+        # if interface.detect_blink(realtime / 1000) == False:
+        #     # Append attention ratio to list and remove first value if more than 10
+        #     att_list.append(interface.get_att_ratio(realtime / 1000))
+        #     if (len(att_list) > 10):
+        #         att_list.pop(0)
+        #
+        # # # Get the current attention
+        # # # OLD (using headset measure): current_attention = interface.get_attention(realtime / 1000)
+        # current_attention = interface.get_our_attention(att_list, baseline_list, realtime / 1000)
+        #
+        # # If the current attention is different, update the latest attention measure
+        # if current_attention != latest_attention_measure[0]:
+        #
+        #     # Add a new latest attention measure
+        #     attention_measurements.append((current_attention, realtime))
+        #
+        # # # Extrapolate the attention value so that it meets the most recent attention measure 500ms after reading it.
+        # # current_attention = attention.get_interpolated_attention(
+        # #     attention_measurements[len(attention_measurements) - 1][0],
+        # #     extrapolated_attention,
+        # #     attention_measurements[len(attention_measurements) - 1][1],
+        # #     realtime
+        # # )
+        #
+        # # endregion Attention
 
         # Set the time multiplier based on the attention measure
+        current_attention = att_object.curr_attention
         time_mult = attention.get_time_mult(current_attention, calibration_setting)
 
         # Adjust the time by the time multiplier
@@ -168,9 +183,9 @@ def run(player, enemies, rounds, calibration_setting):
         time_mult_surface = fonts.HUD.render('Time Multiplier: ' + "{:.2f}".format(time_mult), False, (0, 0, 0))
         display.blit(time_mult_surface, (DISPLAY_WIDTH/2 - time_mult_surface.get_width()/2, 32))
 
-        # Draw the time multiplier
+        # Draw the attention level
         attention_surface = fonts.HUD.render('Attention: ' + str(builtins.round(current_attention)), False, (0, 0, 0))
-        display.blit(attention_surface, (32, DISPLAY_HEIGHT - attention_surface.get_height() - 32))
+        display.blit(attention_surface, (32, DISPLAY_HEIGHT - attention_surface.get_height() - 100))
 
         # endregion Draw the HUD
 

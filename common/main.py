@@ -10,8 +10,9 @@ import player
 import music
 import threading
 import platform
-from neurosky import interface
+from neurosky import interface, calibration, measure_attention
 import attention
+import pandas as pd
 
 
 # region Initialization
@@ -35,6 +36,19 @@ stop = False
 # Create the music thread
 music_thread = threading.Thread(target=audio.play)
 
+# Create calibration object, specifying the number of minutes to run,
+# which should be equivalent to the run_maths.py variable MAX_TIME / 60000
+calib_obj = calibration.Calibration(1)
+
+# Create the calibration thread
+calibration_thread = threading.Thread(target=calib_obj.sample)
+
+# Create attention measure object
+att_obj = measure_attention.AttentionMeasure()
+
+# Create the attention measure thread
+attention_thread = threading.Thread(target=att_obj.sample)
+
 # endregion Initialization
 
 # region Run Homescreen
@@ -47,7 +61,13 @@ stop = run_homescreen()
 # region Run Maths Calibration
 
 # Run the upper-limit attention calibration
-if not stop: stop, calibration_dataframe = run_maths()
+if not stop:
+    # Start sampling
+    calibration_thread.start()
+    stop = run_maths()
+
+# Stop sampling the calibration data
+if not stop and calibration_thread.is_alive(): calibration_thread.join()
 
 # endregion Run Maths Calibration
 
@@ -60,10 +80,17 @@ if not stop:
     music_thread.start()
 
     # Calibrate the headset
+    calibration_dataframe = pd.read_csv("../neurosky/data/calibration.csv")
     calibration_setting = attention.get_calibration_settings(calibration_dataframe)
 
 # Run the game
-if not stop: stop = run(player, enemy_list, round_list, calibration_setting)
+if not stop:
+    # Start measuring attention
+    attention_thread.start()
+    stop = run(player, enemy_list, round_list, calibration_setting, att_obj)
+
+# Stop measuring attention
+if not stop and attention_thread.is_alive(): attention_thread.join()
 
 # endregion Run Game
 
