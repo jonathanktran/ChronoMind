@@ -4,6 +4,8 @@ import pygame as pg
 from display import display
 from misc import lines_within_range
 import color
+IMAGE = pg.image.load('../assets/sprites/player.png').convert_alpha()
+IMAGE = pg.transform.scale(IMAGE, (85, 56))
 
 
 class Player:
@@ -20,9 +22,11 @@ class Player:
         self.x = x
         self.y = y
         self.color = (255, 0, 0)
-        self.radius = 16
+        self.radius = 20
         self.lives = 10
         self.invincible_timer = 0
+        self.image = IMAGE
+        self.rect = self.image.get_rect()
 
     def step(self, dt, enemies):
         """This runs every frame.
@@ -64,13 +68,9 @@ class Player:
         # Set the player to the mouse position
         self.x, self.y = pg.mouse.get_pos()
 
-    def draw(self):
+    def draw(self, display):
         """Draw the player to the screen"""
 
         # Draw the body
-        if self.invincible_timer == 0: pg.draw.circle(display, color.RED, (self.x, self.y), self.radius)
-        else: pg.draw.circle(display, (255,
-                                       255 * (self.invincible_timer/2000),
-                                       255 * (self.invincible_timer/2000)), (self.x, self.y), self.radius)
-        # Draw the outline
-        pg.draw.circle(display, color.BLACK, (self.x, self.y), self.radius, 1)
+        if self.invincible_timer == 0: display.blit(self.image, (self.x, self.y))
+        else: display.blit(self.image, (self.x, self.y))

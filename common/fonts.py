@@ -7,7 +7,7 @@ import pygame as pg
 pg.font.init()
 
 # The font used to display the hud
-HUD = pg.font.SysFont('Comic Sans MS', 30)
+HUD = pg.font.Font('../assets/Fonts/MonsterFriendFore.otf', 30)
 
 # The font used to display the maths letters
-MATH = pg.font.SysFont('Comic Sans MS', 60)
+MATH = pg.font.SysFont('../assets/Fonts/MonsterFriendFore.otf', 60)

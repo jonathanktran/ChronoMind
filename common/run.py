@@ -7,6 +7,11 @@ import math
 import timeline
 import attention
 import neurosky.interface as interface
+BGIMAGE = pg.image.load('../assets/sprites/background.jpg').convert_alpha()
+GOIMAGE = pg.image.load('../assets/sprites/game_over.png').convert_alpha()
+r = GOIMAGE.get_rect()
+r.center = display.get_rect().center
+
 
 def run(player, enemies, rounds, calibration_setting, att_object):
     """This function is a loop which runs a number of times per second, given by the FPS value in display.
@@ -64,50 +69,6 @@ def run(player, enemies, rounds, calibration_setting, att_object):
         # Store the real amount of time that has passed
         realtime += dt
 
-        # # region Attention
-        #
-        # # Find the latest attention measurement
-        # latest_attention_measure = attention_measurements[len(attention_measurements)-1]
-        #
-        # # If more than 900 ms have passed, check the attention measure for updates
-        # if realtime - latest_attention_measure[1] > 900:
-        #
-        #     # If the time difference is greater than 600 ms, assume that the latest measure is the same as the old one
-        #     if realtime - latest_attention_measure[1] > 1100:
-        #
-        #         # Add a new latest attention measure
-        #         attention_measurements.append((latest_attention_measure[0], latest_attention_measure[1] + 1000))
-        #
-        #     #     # Store the current attention for extrapolation
-        #     #     extrapolated_attention = current_attention
-        #
-        # # If a blink is detected, wait before continuing trying to update att_list
-        # if interface.detect_blink(realtime / 1000) == False:
-        #     # Append attention ratio to list and remove first value if more than 10
-        #     att_list.append(interface.get_att_ratio(realtime / 1000))
-        #     if (len(att_list) > 10):
-        #         att_list.pop(0)
-        #
-        # # # Get the current attention
-        # # # OLD (using headset measure): current_attention = interface.get_attention(realtime / 1000)
-        # current_attention = interface.get_our_attention(att_list, baseline_list, realtime / 1000)
-        #
-        # # If the current attention is different, update the latest attention measure
-        # if current_attention != latest_attention_measure[0]:
-        #
-        #     # Add a new latest attention measure
-        #     attention_measurements.append((current_attention, realtime))
-        #
-        # # # Extrapolate the attention value so that it meets the most recent attention measure 500ms after reading it.
-        # # current_attention = attention.get_interpolated_attention(
-        # #     attention_measurements[len(attention_measurements) - 1][0],
-        # #     extrapolated_attention,
-        # #     attention_measurements[len(attention_measurements) - 1][1],
-        # #     realtime
-        # # )
-        #
-        # # endregion Attention
-
         # Set the time multiplier based on the attention measure
         current_attention = att_object.curr_attention
         time_mult = attention.get_time_mult(current_attention, calibration_setting)
@@ -160,36 +121,41 @@ def run(player, enemies, rounds, calibration_setting, att_object):
         # region Drawing
 
         # Draw the background
-        display.fill((255, 255, 255))
+        display.blit(BGIMAGE, (0, 0))
 
         # Draw the player
-        player.draw()
+        player.draw(display)
 
         # Draw all enemies
         for enemy in enemies.values():
-            enemy.draw()
+            enemy.draw(display)
 
         # region Draw the HUD
 
         # Draw the number of lives
-        lives_surface = fonts.HUD.render('Lives: ' + str(player.lives), False, (0, 0, 0))
-        display.blit(lives_surface, (32, 32))
+
+        pg.draw.rect(display, (255, 0, 0),(10, 10, player.lives * 100, 25))
+        pg.draw.rect(display, (255, 255, 255), (10, 10, 300, 25), 4)
+
+        # If the player runs out of lives, end game and return to home screen
+        if player.lives == 0:
+            display.blit(GOIMAGE, r)
+            pg.display.flip()
+            pg.event.pump()
+            pg.time.delay(2000)
+            return True
 
         # Draw the time
-        time_surface = fonts.HUD.render('Time: ' + str(math.floor(time/1000)), False, (0, 0, 0))
+        time_surface = fonts.HUD.render('Time: ' + str(math.floor(time/1000)), False, (255, 255, 255))
         display.blit(time_surface, (DISPLAY_WIDTH - time_surface.get_width() - 32, 32))
 
         # Draw the time multiplier
-        time_mult_surface = fonts.HUD.render('Time Multiplier: ' + "{:.2f}".format(time_mult), False, (0, 0, 0))
+        time_mult_surface = fonts.HUD.render('Time Multiplier: ' + "{:.2f}".format(time_control.time_mult), False, (255, 255, 255))
         display.blit(time_mult_surface, (DISPLAY_WIDTH/2 - time_mult_surface.get_width()/2, 32))
 
-        # Draw the attention level
-        attention_surface = fonts.HUD.render('Attention: ' + str(builtins.round(current_attention)), False, (0, 0, 0))
-        display.blit(attention_surface, (32, DISPLAY_HEIGHT - attention_surface.get_height() - 100))
-
-        # endregion Draw the HUD
-
-        # endregion Drawing
+        # Draw the time multiplier
+        attention_surface = fonts.HUD.render('Attention: ' + str(builtins.round(current_attention)), False, (255, 255, 255))
+        display.blit(attention_surface, (32, DISPLAY_HEIGHT - attention_surface.get_height() - 32))
 
         # Update the window
         pg.display.update()

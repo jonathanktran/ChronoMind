@@ -3,10 +3,13 @@ Enemies are objects which harm or kill the player during gameplay. They are spaw
 Each enemy must be added to the enemies dictionary when created, and must be removed when destroyed.
 """
 
-import math
+from display import *
 import pygame as pg
 import display
 import color
+import math
+IMAGE = pg.image.load('../assets/sprites/asteroid_1.png').convert_alpha()
+IMAGE = pg.transform.scale(IMAGE, (50, 50))
 
 
 # region Enemy List
@@ -111,6 +114,8 @@ class Bullet(Enemy):
         self.y_vel = velocity[1]
         self.color = color
         self.radius = 8
+        self.image = IMAGE
+        self.rect = self.image.get_rect()
 
     def step(self, dt):
         """This runs every frame
@@ -134,9 +139,9 @@ class Bullet(Enemy):
         """This runs when the enemy collides with the player"""
         enemy_destroy(self)
 
-    def draw(self):
+    def draw(self, display):
         """Draw the bullet to the screen"""
-        pg.draw.circle(display.display, color.RED, (self.x, self.y), self.radius)
+        display.blit(self.image, (self.x, self.y))
 
     def copy(self):
         """Return a copy of this instance"""
@@ -217,9 +222,8 @@ class BlinkBullet(Enemy):
         enemy_destroy(self)
 
     def draw(self):
-        """Draw the bullet to the screen"""
-
-        pg.draw.circle(display.display, color.GREEN, (self.x, self.y), self.radius)
+        """Draw the bullet to the screen"""\
+        display.blit(self.image, (self.x, self.y))
 
     def copy(self):
         """Return a copy of this instance"""
@@ -297,10 +301,9 @@ class WaveBullet(Enemy):
         """This runs when the enemy collides with the player"""
         enemy_destroy(self)
 
-    def draw(self):
+    def draw(self, display):
         """Draw the bullet to the screen"""
-
-        pg.draw.circle(display.display, color.BLUE, (self.x, self.y), self.radius)
+        display.blit(self.image, (self.x, self.y))
 
     def copy(self):
         """Return a copy of this instance"""
