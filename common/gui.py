@@ -11,7 +11,7 @@ class Button:
     """
 
     def __init__(self, position: typing.Tuple[int, int], hitbox: typing.Tuple[int, int],
-                 color: typing.Tuple[int, int, int], text=None):
+                 hover_color: typing.Tuple[int, int, int], unhover_color, text=None):
         """Initialize the button.
 
         :param position: A tuple of integers representing the center x and y of the button
@@ -20,7 +20,8 @@ class Button:
         """
 
         self.position = position
-        self.color = color
+        self.hover_color = hover_color
+        self.unhover_color = unhover_color
         self.size = hitbox
 
         # region Hitbox
@@ -58,11 +59,22 @@ class Button:
            self.hitbox_lower_y <= position[1] <= self.hitbox_upper_y:
             return True
 
-    def draw(self):
+    def draw_hover(self):
         """Draw the button to the screen"""
 
         # Draw the square
-        pg.draw.rect(display, self.color,
+        pg.draw.rect(display, self.hover_color,
+                     pg.Rect(self.hitbox_lower_x, self.hitbox_lower_y, self.size[0], self.size[1]))
+
+        # Draw the text
+        if self.text is not None: display.blit(self.text, self.text_pos)
+
+
+    def draw_unhover(self):
+        """Draw the button to the screen"""
+
+        # Draw the square
+        pg.draw.rect(display, self.unhover_color,
                      pg.Rect(self.hitbox_lower_x, self.hitbox_lower_y, self.size[0], self.size[1]))
 
         # Draw the text
