@@ -19,7 +19,7 @@ class AttentionMeasure:
         # Current attention level
         self.curr_attention = 0
 
-        # Attention deque to store last 10 raw_uv values from headset
+        # Attention deque to store last 20 raw_uv values from headset
         self.att_deque = deque([self.baseline_list[0] for i in range(20)])
 
     def sample(self):
@@ -37,12 +37,15 @@ class AttentionMeasure:
                 while interface.headset.poor_signal > 5:
                     time.sleep(0.01)
                 raw_uv = interface.get_microvolts(interface.get_raw(curr_time))
+
                 # If raw_uv > 10 uV from the last value, set raw_uv to last value + 10
                 if raw_uv > self.att_deque[len(self.att_deque)-1] + 10:
                     raw_uv = self.att_deque[len(self.att_deque)-1] + 10
+
                 # If raw_uv < 10 uV from the last value, set raw_uv to last value - 10
                 elif raw_uv < self.att_deque[len(self.att_deque)-1] - 10:
                     raw_uv = self.att_deque[len(self.att_deque) - 1] - 10
+
                 # Append raw_uv values to deque
                 self.att_deque.append(raw_uv)
 
@@ -50,8 +53,7 @@ class AttentionMeasure:
                 self.att_deque.popleft()
 
                 # Update attention level using our attention function
-                #self.curr_attention = interface.get_our_attention(self.att_deque, self.baseline_list, curr_time)
-                self.curr_attention = interface.get_attention(curr_time)
+                self.curr_attention = interface.get_our_attention(self.att_deque, self.baseline_list, curr_time)
 
                 # Wait a sampling_rate number of seconds before taking next sample
                 time.sleep(self.sampling_rate)
