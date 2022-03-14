@@ -69,14 +69,13 @@ class Straight(Round):
     """This is the Straight Round. It spawns enemies from its starting position, sending them outwards at a given
      velocity. These enemies travel in a straight line."""
 
-    def __init__(self, enemy, position, velocity, direction, color, enemy_count, dt):
+    def __init__(self, enemy, position, velocity, direction, enemy_count, dt):
         """Initialize the Straight Round
 
         :param enemy: The enemy class to spawn
         :param position: The starting position of each enemy
         :param velocity: The velocity of each enemy
         :param direction: The direction of each enemy
-        :param color: The color of the spawned enemies
         :param enemy_count: The number of enemies to spawn before destroying this spawner
         :param dt: The number of ms between each enemy spawn
         """
@@ -87,7 +86,6 @@ class Straight(Round):
         self.y = position[1]
         self.vel_x = velocity * math.cos(math.radians(direction))
         self.vel_y = velocity * math.sin(math.radians(direction))
-        self.color = color
         self.enemy_count = enemy_count
         self.dt = dt
         self.time = dt
@@ -99,7 +97,7 @@ class Straight(Round):
         """
 
         # Spawn the enemy
-        enemies.enemy_create(self.enemy((self.x, self.y), (self.vel_x, self.vel_y), self.color), delay)
+        enemies.enemy_create(self.enemy((self.x, self.y), (self.vel_x, self.vel_y)), delay)
         self.enemy_count = self.enemy_count - 1
 
         # Check if the round is finished
@@ -130,7 +128,7 @@ class Sprinkler(Round):
     velocity. The direction of these bullets changes at a given rate, and oscillates back and forth between the minimum
     and maximum angles."""
 
-    def __init__(self, enemy, position, velocity, direction, lower_dir, upper_dir, dir_spd, color, enemy_count, dt):
+    def __init__(self, enemy, position, velocity, direction, lower_dir, upper_dir, dir_spd, enemy_count, dt):
         """ Initialize the Sprinkler round.
 
         :param enemy: The enemy class to spawn
@@ -140,7 +138,6 @@ class Sprinkler(Round):
         :param lower_dir: The lowest direction an enemy can go in, in degrees
         :param upper_dir: The highest direction an enemy can go in, in degrees
         :param dir_spd: The number of degrees that the sprinkler will change each second
-        :param color: The color of the spawned enemies
         :param enemy_count: The number of enemies to spawn before destroying this spawner
         :param dt: The number of ms between each enemy spawn
         """
@@ -153,7 +150,6 @@ class Sprinkler(Round):
         self.lower_dir = math.radians(lower_dir)
         self.upper_dir = math.radians(upper_dir)
         self.dir_spd = math.radians(dir_spd)
-        self.color = color
         self.enemy_count = enemy_count
         self.dt = dt
         self.time = dt
@@ -169,7 +165,7 @@ class Sprinkler(Round):
         vel_y = math.sin(self.direction) * self.velocity
 
         # Spawn the enemy
-        enemies.enemy_create(self.enemy((self.x, self.y), (vel_x, vel_y), self.color), delay)
+        enemies.enemy_create(self.enemy((self.x, self.y), (vel_x, vel_y)), delay)
         self.enemy_count = self.enemy_count - 1
 
         # Check if the round is finished
@@ -212,14 +208,13 @@ class Row(Round):
     """This is the Row Round. It spawns enemies from its starting position, sending them outwards at a given
      velocity. These enemies travel in a straight line. This row moves linearly over time between two points."""
 
-    def __init__(self, enemy, position, velocity, direction, color, enemy_count, position_1, position_2, pos_spd, dt):
+    def __init__(self, enemy, position, velocity, direction, enemy_count, position_1, position_2, pos_spd, dt):
         """Initialize the Straight Round
 
         :param enemy: The enemy class to spawn
         :param position: The starting position, where 0 is pos_1, and 1 is pos_2
         :param velocity: The magnitude of velocity of each enemy
         :param direction: The direction of each enemy
-        :param color: The color of the spawned enemies
         :param enemy_count: The number of enemies to spawn before destroying this spawner
         :param position_1: An (x, y) tuple representing the first bound of the round's motion
         :param position_2: An (x, y) tuple representing the second bound of the round's motion
@@ -233,7 +228,6 @@ class Row(Round):
         self.y = position_1[1]
         self.vel_x = velocity * math.cos(math.radians(direction))
         self.vel_y = velocity * math.sin(math.radians(direction))
-        self.color = color
         self.enemy_count = enemy_count
         self.position = (position[0] - position_1[0]) / (position_2[0] - position_1[0]) if (position_1[0] != position_2[0]) \
                         else (position[1] - position_1[1]) / (position_2[1] - position_1[1])
@@ -250,7 +244,7 @@ class Row(Round):
         """
 
         # Spawn the enemy
-        enemies.enemy_create(self.enemy((self.x, self.y), (self.vel_x, self.vel_y), self.color), delay)
+        enemies.enemy_create(self.enemy((self.x, self.y), (self.vel_x, self.vel_y)), delay)
         self.enemy_count = self.enemy_count - 1
 
         # Check if the round is finished

@@ -282,7 +282,7 @@ def add_level(time):
 
         # Add the round
         add(time, round_type(position=position, direction=direction, velocity=velocity,
-                             enemy=enemy_type, color=color.RED, **round_spawnrate,  **round_args))
+                             enemy=enemy_type, **round_spawnrate,  **round_args))
 
     # Then, randomly generate the enemies to add
     for enemy in range(enemy_count):
@@ -304,7 +304,7 @@ def add_level(time):
         spawn_time = random.randrange(time, time+4000)
 
         # Add the enemy
-        add(spawn_time, enemy_type(position=position, velocity=velocity, color=color.RED))
+        add(spawn_time, enemy_type(position=position, velocity=velocity))
 
 
 # endregion Functionality

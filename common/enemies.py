@@ -86,7 +86,7 @@ class Enemy:
         """This runs when this enemy collides with the player"""
         pass
 
-    def draw(self):
+    def draw(self, display):
         """Draw this enemy to the screen"""
         pass
 
@@ -98,7 +98,7 @@ class Enemy:
 class Bullet(Enemy):
     """This is the bullet enemy. It kills the player when it makes contact."""
 
-    def __init__(self, position, velocity, color):
+    def __init__(self, position, velocity):
         """ Initialize the bullet enemy
 
         :param position: The starting (x, y) position tuple of the bullet
@@ -112,8 +112,7 @@ class Bullet(Enemy):
         self.y = position[1]
         self.x_vel = velocity[0]
         self.y_vel = velocity[1]
-        self.color = color
-        self.radius = 8
+        self.radius = 24
         self.image = IMAGE
         self.rect = self.image.get_rect()
 
@@ -143,10 +142,6 @@ class Bullet(Enemy):
         """Draw the bullet to the screen"""
         display.blit(self.image, (self.x, self.y))
 
-    def copy(self):
-        """Return a copy of this instance"""
-        return Bullet((self.x, self.y), (self.x_vel, self.y_vel), self.color)
-
 
 class BlinkBullet(Enemy):
     """This is the blink bullet enemy. It kills the player when it makes contact. It jumps between two positions
@@ -160,7 +155,7 @@ class BlinkBullet(Enemy):
 
     # endregion Constants
 
-    def __init__(self, position, velocity, color):
+    def __init__(self, position, velocity):
         """ Initialize the bullet enemy
 
         :param position: The starting (x, y) position tuple of the bullet
@@ -182,6 +177,7 @@ class BlinkBullet(Enemy):
         self.color = color
         self.radius = 8
         self.position_time = 0
+        self.image = IMAGE
 
     def step(self, dt):
         """This runs every frame
@@ -221,13 +217,9 @@ class BlinkBullet(Enemy):
         """This runs when the enemy collides with the player"""
         enemy_destroy(self)
 
-    def draw(self):
-        """Draw the bullet to the screen"""\
+    def draw(self, display):
+        """Draw the bullet to the screen"""
         display.blit(self.image, (self.x, self.y))
-
-    def copy(self):
-        """Return a copy of this instance"""
-        return BlinkBullet((self.x, self.y), (self.x_vel, self.y_vel), self.color)
 
 
 class WaveBullet(Enemy):
@@ -242,7 +234,7 @@ class WaveBullet(Enemy):
 
     # endregion Constants
 
-    def __init__(self, position, velocity, color):
+    def __init__(self, position, velocity):
         """ Initialize the bullet enemy
 
         :param position: The starting (x, y) position tuple of the bullet
@@ -266,6 +258,7 @@ class WaveBullet(Enemy):
         self.color = color
         self.radius = 8
         self.position_time = 0
+        self.image = IMAGE
 
     def step(self, dt):
         """This runs every frame
@@ -304,9 +297,5 @@ class WaveBullet(Enemy):
     def draw(self, display):
         """Draw the bullet to the screen"""
         display.blit(self.image, (self.x, self.y))
-
-    def copy(self):
-        """Return a copy of this instance"""
-        return WaveBullet((self.x, self.y), (self.x_vel, self.y_vel), self.color)
 
 # endregion Enemy Classes

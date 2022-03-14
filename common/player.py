@@ -4,8 +4,7 @@ import pygame as pg
 from display import display
 from misc import lines_within_range
 import color
-IMAGE = pg.image.load('../assets/sprites/player.png').convert_alpha()
-IMAGE = pg.transform.scale(IMAGE, (85, 56))
+from math import cos, pi
 
 
 class Player:
@@ -18,14 +17,19 @@ class Player:
         :param y: The starting y position of the player
         """
 
+        # The starting number of lives
+        self.MAX_LIVES = 10
+        self.INV_TIME = 2000
+
         # Initialize the player attributes
         self.x = x
         self.y = y
         self.color = (255, 0, 0)
         self.radius = 20
-        self.lives = 10
+        self.lives = self.MAX_LIVES
         self.invincible_timer = 0
-        self.image = IMAGE
+        self.image = pg.image.load('../assets/sprites/player.png').convert_alpha()
+        self.image = pg.transform.scale(self.image, (85, 56))
         self.rect = self.image.get_rect()
 
     def step(self, dt, enemies):
@@ -63,7 +67,7 @@ class Player:
                     self.lives = self.lives - 1
 
                     # Become invincible
-                    self.invincible_timer = 2000
+                    self.invincible_timer = self.INV_TIME
 
         # Set the player to the mouse position
         self.x, self.y = pg.mouse.get_pos()
@@ -71,6 +75,16 @@ class Player:
     def draw(self, display):
         """Draw the player to the screen"""
 
-        # Draw the body
+        # Draw the player normally
         if self.invincible_timer == 0: display.blit(self.image, (self.x, self.y))
-        else: display.blit(self.image, (self.x, self.y))
+        else:
+
+            # Copy the player image
+            inv_image = self.image.copy()
+
+            # Find the current alpha value
+            alpha = (-cos((self.INV_TIME - self.invincible_timer) * (2 * pi / (2000 / 3.5))) / 2 + 0.5) * 255
+
+            # Make the image transparent
+            inv_image.fill((255, 255, 255, alpha), None, pg.BLEND_RGBA_MULT)
+            display.blit(inv_image, (self.x, self.y))

@@ -12,7 +12,7 @@ import color
 
 # region Constants
 
-MAX_TIME = 60000 # 60000 = 60 seconds
+MAX_TIME = 600
 
 # endregion Constants
 

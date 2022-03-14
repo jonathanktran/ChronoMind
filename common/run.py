@@ -29,20 +29,8 @@ def run(player, enemies, rounds, calibration_setting, att_object):
     # Store the real time
     realtime = 0
 
-    # Store the list of attention measurements and their times (attention, time)
-    # attention_measurements = [(interface.get_attention(0), -1500), (interface.get_attention(0), -500)]
-    #
-    # # Store the extrapolated attention values at the time of the most recent attention measure
-    # extrapolated_attention = attention_measurements[0][0]
-    #
-    # Store the current attention
-    # current_attention = attention_measurements[0][0]
-
     # Start the first timeline, if there is any
     timeline.check(0, 1)
-
-    # # Set the attention to read from the gameplay calibration file if the headset is not connected
-    # interface.set_file("../neurosky/data/game_1_min.csv")
 
     # The current time multiplier
     time_mult = 1
@@ -53,12 +41,6 @@ def run(player, enemies, rounds, calibration_setting, att_object):
 
     # Tick the clock once to remove delays
     clock.tick(FPS)
-
-    # # Attention array to store last 10 attention values from headset
-    # att_list = []
-    #
-    # # Get baseline attention level mean and standard deviation as list [mean, sd]
-    # baseline_list = interface.get_baseline("../neurosky/data/calibration.csv")
 
     # Run the game until it is quit
     while True:
@@ -134,7 +116,7 @@ def run(player, enemies, rounds, calibration_setting, att_object):
 
         # Draw the number of lives
 
-        pg.draw.rect(display, (255, 0, 0),(10, 10, player.lives * 100, 25))
+        pg.draw.rect(display, (255, 0, 0), (10, 10, 300 * (player.lives / player.MAX_LIVES), 25))
         pg.draw.rect(display, (255, 255, 255), (10, 10, 300, 25), 4)
 
         # If the player runs out of lives, end game and return to home screen
@@ -150,7 +132,7 @@ def run(player, enemies, rounds, calibration_setting, att_object):
         display.blit(time_surface, (DISPLAY_WIDTH - time_surface.get_width() - 32, 32))
 
         # Draw the time multiplier
-        time_mult_surface = fonts.HUD.render('Time Multiplier: ' + "{:.2f}".format(time_control.time_mult), False, (255, 255, 255))
+        time_mult_surface = fonts.HUD.render('Time Multiplier: ' + "{:.2f}".format(time_mult), False, (255, 255, 255))
         display.blit(time_mult_surface, (DISPLAY_WIDTH/2 - time_mult_surface.get_width()/2, 32))
 
         # Draw the time multiplier
