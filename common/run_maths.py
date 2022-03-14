@@ -1,20 +1,18 @@
 """This file contains the method for running the maths portion of the game, which calibrates the upper limit of
 attention."""
 
+import pandas as pd
+
 from display import *
 import fonts
 import math
-import time_control
 import random
 import color
-from neurosky import interface
-import platform
-import pandas as pd
 
 
 # region Constants
 
-MAX_TIME = 60000
+MAX_TIME = 600
 
 # endregion Constants
 
@@ -86,9 +84,6 @@ def run_maths():
     # A list of data samples taken by the headset
     data = []
 
-    # Tick the clock once to remove delays
-    clock.tick(FPS)
-
     # The current time left to answer questions
     time = MAX_TIME
 
@@ -101,17 +96,17 @@ def run_maths():
     # The number of correct responses
     correct = 0
 
+    # Tick the clock once to remove delays
+    clock.tick(FPS)
+
     # Run the game until it is quit
     while True:
 
         # Wait until the FPS time has passed.
-        dt = clock.tick(FPS) * time_control.time_mult
+        dt = clock.tick(FPS)
 
         # Find the current time
         time -= dt
-
-        # Add this frame of data to the list of data for the entire session
-        data.append(interface.get_values((MAX_TIME - time) / 1000))
 
         # Generate a new question if the current one is done
         if question is None: question = generate_question()
@@ -201,8 +196,6 @@ def run_maths():
         # If the timer is at 0, break the loop
         if time <= 0:
 
-            # Write the data to a csv file
-            interface.to_csv(data)
-
             # Exit the maths portion
             return False
+
