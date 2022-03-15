@@ -288,7 +288,6 @@ def add_level(time):
     # Find the number of rounds and enemies
     round_difficulties = get_difficulty_assignment(BASE_ROUND_DIFFICULTY, round_difficulty)
     enemy_difficulties = get_difficulty_assignment(BASE_ROUND_DIFFICULTY, enemy_difficulty)
-    print(round_difficulties, enemy_difficulties)
 
     # Next, randomly generate the rounds to add
     for round in round_difficulties:

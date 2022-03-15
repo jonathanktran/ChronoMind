@@ -28,7 +28,7 @@ class AttentionMeasure:
         t_start = time.time()
 
         while True:
-            
+
             # Current time from start
             curr_time = time.time() - t_start
 
