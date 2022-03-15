@@ -38,14 +38,6 @@ class AttentionMeasure:
                     time.sleep(0.01)
                 raw_uv = interface.get_microvolts(interface.get_raw(curr_time))
 
-                # If raw_uv > 10 uV from the last value, set raw_uv to last value + 10
-                if raw_uv > self.att_deque[len(self.att_deque)-1] + 10:
-                    raw_uv = self.att_deque[len(self.att_deque)-1] + 10
-
-                # If raw_uv < 10 uV from the last value, set raw_uv to last value - 10
-                elif raw_uv < self.att_deque[len(self.att_deque)-1] - 10:
-                    raw_uv = self.att_deque[len(self.att_deque) - 1] - 10
-
                 # Append raw_uv values to deque
                 self.att_deque.append(raw_uv)
 
@@ -53,7 +45,19 @@ class AttentionMeasure:
                 self.att_deque.popleft()
 
                 # Update attention level using our attention function
-                self.curr_attention = interface.get_our_attention(self.att_deque, self.baseline_list, curr_time)
+                new_attention = interface.get_our_attention(self.att_deque, self.baseline_list, curr_time)
+                # If new_attention > 10 from the curr_attention, set curr_attention to curr_attention + 10
+                if new_attention > self.curr_attention + 10:
+                    self.curr_attention = self.curr_attention + 10
+
+                # If new_attention < 10 from the curr_attention, set curr_attention to curr_attention - 10
+                elif new_attention < self.curr_attention - 10:
+                    self.curr_attention = self.curr_attention - 10
+
+                # If new_attention is within 10 of the curr_attention, just update curr_attention with
+                # the new_attention value
+                else:
+                    self.curr_attention = new_attention
 
                 # Wait a sampling_rate number of seconds before taking next sample
                 time.sleep(self.sampling_rate)
