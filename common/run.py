@@ -5,8 +5,6 @@ from display import *
 import fonts
 import math
 import timeline
-import attention
-import neurosky.interface as interface
 BGIMAGE = pg.image.load('../assets/sprites/background.jpg').convert_alpha()
 GOIMAGE = pg.image.load('../assets/sprites/game_over.png').convert_alpha()
 r = GOIMAGE.get_rect()
@@ -53,7 +51,7 @@ def run(player, enemies, rounds, att_object):
 
         # Set the time multiplier based on the attention measure
         current_attention = att_object.curr_attention
-        time_mult = attention.get_time_mult(current_attention)
+        time_mult = (-math.log(current_attention + 1)/6) + 1
 
         # Adjust the time by the time multiplier
         dt = dt * time_mult
@@ -105,12 +103,12 @@ def run(player, enemies, rounds, att_object):
         # Draw the background
         display.blit(BGIMAGE, (0, 0))
 
-        # Draw the player
-        player.draw(display)
-
         # Draw all enemies
         for enemy in enemies.values():
             enemy.draw(display)
+
+        # Draw the player
+        player.draw(display)
 
         # region Draw the HUD
 
