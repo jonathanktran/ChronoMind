@@ -1,5 +1,7 @@
 """This file contains methods for using the attention level of the player."""
 
+from math import log
+
 # region Constants
 
 MAX_ATTENTION = 100
@@ -10,19 +12,16 @@ MIN_TIME_MULT = 0.6
 # region Functionality
 
 
-def get_time_mult(attention, calibration_setting):
+def get_time_mult(attention):
     """Return the time multiplier associated with the current attention level. This is dependant upon the calibration
     settings. Attention levels below the calibrated minimum have a time multiplier of 1. Attention levels above the
     calibration threshold are linearly determined, with a minimum time multiplier achieved at an attention of 100.
 
     :param attention: The current level of attention
-    :param calibration_setting: The attention values used to set the minimum attention bound
     :return time multiplier: The time multiplier associated with the given level of attention.
     """
 
-    return 1 if attention < calibration_setting \
-        else (MIN_TIME_MULT if attention >= MAX_ATTENTION
-        else (attention - calibration_setting) * ((MIN_TIME_MULT - 1) / (MAX_ATTENTION - calibration_setting)) + 1)
+    return (-log(attention + 1)/6) + 1
 
 
 def get_calibration_settings(dataframe):

@@ -11,8 +11,6 @@ import music
 import threading
 import platform
 from neurosky import interface, calibration, measure_attention
-import attention
-import pandas as pd
 
 
 # Connect to Neurosky headset
@@ -86,9 +84,8 @@ while stop is not True:
         # Play the music
         music_thread.start()
 
-        # Calibrate the headset
-        calibration_dataframe = pd.read_csv("../neurosky/data/calibration.csv")
-        calibration_setting = attention.get_calibration_settings(calibration_dataframe)
+        # Set the file to read attention from
+        interface.set_file('../neurosky/data/game_1_min.csv')
 
         # Create attention measure object
         att_obj = measure_attention.AttentionMeasure()
@@ -98,7 +95,7 @@ while stop is not True:
 
         # Run the game
         attention_thread.start()
-        stop = run(player, enemy_list, round_list, calibration_setting, att_obj)
+        stop = run(player, enemy_list, round_list, att_obj)
 
     # Stop measuring attention
     if not stop and attention_thread.is_alive(): attention_thread.join()

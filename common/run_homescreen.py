@@ -1,12 +1,33 @@
-"""This file contains the run function, which runs the homescreen portion of the game."""
+"""This file contains the run_homescreen function, which runs the homescreen portion of the game."""
 
 from display import *
 import fonts
 from gui import Button
 import color
+from math import sin, pi
 
 
-def run_options(audio):
+class Mouse:
+    """This class is used to diplay the mouse."""
+
+    # The amount of time the mouse wiggles
+    MAX_WIGGLETIME = 1000
+
+    def __init__(self):
+        self.wiggletime = 0
+
+    def step(self, dt):
+        self.wiggletime = max(0, self.wiggletime - dt)
+
+    def press(self):
+        self.wiggletime = self.MAX_WIGGLETIME
+
+    def draw(self):
+        pg.draw.circle(display, color.PALE_BLUE, pg.mouse.get_pos(),
+                       16 * ((self.wiggletime/1000) * (3/4) * sin(self.wiggletime * 2 * pi / 250) + 1))
+
+
+def run_options(mouse, audio):
 
     # Create the window
     window = pg.display.set_mode((0, 0), pg.FULLSCREEN)
@@ -25,6 +46,12 @@ def run_options(audio):
 
     # Run the game until it is quit
     while True:
+
+        # Wait until the FPS time has passed, and store that time
+        dt = clock.tick(FPS)
+
+        # Step the mouse
+        mouse.step(dt)
 
         # region Events
 
@@ -48,6 +75,9 @@ def run_options(audio):
                 # Check button presses if the left mouse button in pressed
                 if event.button == pg.BUTTON_LEFT:
 
+                    # Press the mouse
+                    mouse.press()
+
                     # Go back to the homescreen if the back button is pressed
                     if back.press(pg.mouse.get_pos()):
                         return False
@@ -59,7 +89,6 @@ def run_options(audio):
                     # Decrease the volume if in the decrease volume button is pressed
                     if dec_vol.press(pg.mouse.get_pos()):
                         audio.set_volume(min(0.2, audio.volume + 0.01))
-
 
         # endregion Events
 
@@ -83,7 +112,7 @@ def run_options(audio):
         window.blit(text, (DISPLAY_WIDTH/2 - text.get_width()/2, DISPLAY_HEIGHT/2 - text.get_height()/2))
 
         # Draw the mouse
-        pg.draw.circle(display, color.DARKGREEN, pg.mouse.get_pos(), 16)
+        mouse.draw()
 
         # endregion Draw the HUD
 
@@ -91,7 +120,7 @@ def run_options(audio):
         pg.display.update()
 
 
-def run_credits():
+def run_credits(mouse):
 
     # Create the window
     window = pg.display.set_mode((0, 0), pg.FULLSCREEN)
@@ -108,6 +137,12 @@ def run_credits():
 
     # Run the game until it is quit
     while True:
+
+        # Wait until the FPS time has passed, and store that time
+        dt = clock.tick(FPS)
+
+        # Step the mouse
+        mouse.step(dt)
 
         # region Events
 
@@ -130,6 +165,10 @@ def run_credits():
 
                 # Check button presses if the left mouse button in pressed
                 if event.button == pg.BUTTON_LEFT:
+
+                    # Press the mouse
+                    mouse.press()
+
                     if back.press(pg.mouse.get_pos()):
                         return False
 
@@ -151,7 +190,7 @@ def run_credits():
         else: back.draw_unhover()
 
         # Draw the mouse
-        pg.draw.circle(display, color.DARKGREEN, pg.mouse.get_pos(), 16)
+        mouse.draw()
 
         # endregion Draw the HUD
 
@@ -163,6 +202,9 @@ def run_homescreen(audio):
     """This function is a loop which runs a number of times per second, given by the FPS value in display.
     This displays the homescreen portion of the game.
     """
+
+    # Create the mouse
+    mouse = Mouse()
 
     # The button used to start the game
     play = Button((DISPLAY_WIDTH/2, DISPLAY_HEIGHT * (8/24)), (DISPLAY_WIDTH/8, DISPLAY_HEIGHT/8), color.ORANGE,
@@ -180,8 +222,17 @@ def run_homescreen(audio):
     quit = Button((DISPLAY_WIDTH/2, DISPLAY_HEIGHT * (20/24)), (DISPLAY_WIDTH/8, DISPLAY_HEIGHT/8), color.ORANGE,
                color.WHITE, fonts.QUIT.render('Quit', True, color.BLACK), border_radius=16)
 
+    # Tick the clock once to remove delays
+    clock.tick(FPS)
+
     # Run the game until it is quit
     while True:
+
+        # Wait until the FPS time has passed, and store that time
+        dt = clock.tick(FPS)
+
+        # Step the mouse
+        mouse.step(dt)
 
         # region Events
 
@@ -205,18 +256,21 @@ def run_homescreen(audio):
                 # Check button presses if the left mouse button in pressed
                 if event.button == pg.BUTTON_LEFT:
 
+                    # Press the mouse
+                    mouse.press()
+
                     # Play the game if the play button is pressed
                     if play.press(pg.mouse.get_pos()):
                         return False, audio.volume
 
                     # Enter the options function if the options button is pressed
                     if options.press(pg.mouse.get_pos()):
-                        if run_options(audio):
+                        if run_options(mouse, audio):
                             return True, 0
 
                     # Enter the credits function if the credits button is pressed
                     if credits.press(pg.mouse.get_pos()):
-                        if run_credits():
+                        if run_credits(mouse):
                             return True, 0
 
                     # Quit the game if the quit button is pressed
@@ -244,7 +298,7 @@ def run_homescreen(audio):
         else: quit.draw_unhover()
 
         # Draw the mouse
-        pg.draw.circle(display, color.DARKGREEN, pg.mouse.get_pos(), 16)
+        mouse.draw()
 
         # endregion Draw the HUD
 

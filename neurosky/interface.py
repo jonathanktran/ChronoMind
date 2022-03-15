@@ -250,6 +250,7 @@ def get_slow_strength(rolling_att, baseline_list):
         
     return slow_strength
 
+
 def get_realtime_ratio(att_deque):
     """Obtains the average gamma/alpha ratio from the recent raw values
     from the headset
@@ -257,6 +258,7 @@ def get_realtime_ratio(att_deque):
     :param att_deque: deque containing the most recent raw_uv values
     :return: average gamma/alpha ratio for the provided values
     """
+
     # Run FFT on att_deque
     transformed_uv = fft(np.array(att_deque))
     N = len(att_deque)  # number of points
@@ -283,46 +285,46 @@ def get_realtime_ratio(att_deque):
     alpha = get_avg_power(8, 13, freq_pow_df)
     gamma = get_avg_power(30, 50, freq_pow_df)
 
+    # If both are 0, return 0
+    if alpha == 0 and gamma == 0: return 0
+
     # Return attention ratio
     return gamma/alpha
 
-def get_our_attention(att_deque, baseline_list, time):
+
+def get_our_attention(att_deque, baseline_list):
     """This method calculates an attention level from 0-100 based on the number of
     standard deviations away from the baseline attention level
 
     :param att_deque: A deque of the last 1 second attention values recorded by the headset
     :param baseline_list: A list [baseline_att_mean, baseline_att_sd]
-    :param time: Current time since starting the game
     :return current_attention: A calculated attention level from 0-100
     """
-    # If the headset is connected
-    if headset is not None:
-        # Perform FFT
-        att_ratio = get_realtime_ratio(att_deque)
 
-        # Find number of standard deviations rolling_att is from baseline_att
-        num_sd = get_slow_strength(att_ratio, baseline_list)
+    # Perform FFT
+    att_ratio = get_realtime_ratio(att_deque)
 
-        # Calculate attention level using number of standard deviations from baseline
-        if(num_sd >= 2):
-            current_attention = 100
-        else:
-            current_attention = num_sd/2 * 100
-        
-        return current_attention
+    # Find number of standard deviations rolling_att is from baseline_att
+    num_sd = get_slow_strength(att_ratio, baseline_list)
 
-    # If the headset is not connected, return the recorded value for the given time
+    # Calculate attention level using number of standard deviations from baseline
+    if num_sd >= 2:
+        current_attention = 100
     else:
-        return nearest_recorded_sample(time)["attention"]
+        current_attention = num_sd/2 * 100
+
+    return current_attention
+
 
 def get_microvolts(raw_value):
     """This method converts the raw_value to microvolts, based on the link:
-    http://support.neurosky.com/kb/science/how-to-convert-raw-values-to-voltage
+    https://support.neurosky.com/kb/science/how-to-convert-raw-values-to-voltage
 
     :param raw_value: raw value from Neurosky headset, as seen in csv files
     :return: value in microvolts
     """
     return raw_value * (1.8/4096) / 2000 * 1000000
+
 
 def detect_blink():
     """Checks if there is a blink at the current moment
@@ -339,6 +341,7 @@ def detect_blink():
             return False
     else:
         return False
+
 
 def remove_blink(df):
     """Filters out blink data from calibration data, before and after the
@@ -376,6 +379,7 @@ def remove_blink(df):
         df.loc[(df["seconds"] <= time + 0.2) & (df["seconds"] >= time - 0.2), "raw_uv"] = prev_uv
     return df
 
+
 def get_slope_list(freq_1, freq_2, pow_1, pow_2):
     """Obtains the slope and intercept between two (freq, pow) points
 
@@ -385,9 +389,12 @@ def get_slope_list(freq_1, freq_2, pow_1, pow_2):
     :param pow_2: power at second point
     :return: a list of [slope, intercept]
     """
+
     slope = (pow_2 - pow_1) / (freq_2 - freq_1)
-    intercept = pow_1 - slope * freq_1
+    intercept = pow_1 - (slope * freq_1)
+
     return [slope, intercept]
+
 
 def get_avg_power(start_freq, end_freq, dataframe):
     """Averages the power across the provided frequencies
@@ -406,6 +413,7 @@ def get_avg_power(start_freq, end_freq, dataframe):
         intercept = freq_df.iloc[len(freq_df) - 1]["intercept"]
         pow_list.append(slope * freq + intercept)
     return sum(pow_list)/len(pow_list)
+
 
 def transform_calibration(df):
     """Uses Fast Fourier Transform on the raw values in microvolts

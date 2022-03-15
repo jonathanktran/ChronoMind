@@ -4,6 +4,7 @@ from neurosky import interface
 import time
 from collections import deque
 
+
 class AttentionMeasure:
 
     def __init__(self):
@@ -23,45 +24,43 @@ class AttentionMeasure:
         self.att_deque = deque([self.baseline_list[0] for i in range(20)])
 
     def sample(self):
-        if interface.headset is not None:
-            t_start = time.time()
-            while True:
-                # Current time from start
-                curr_time = time.time() - t_start
 
-                # If a blink is detected, wait before continuing trying to update att_list
-                while interface.detect_blink() == True:
-                    time.sleep(0.2)
+        t_start = time.time()
 
-                # Wait until headset steadies, then get raw_uv value
-                while interface.headset.poor_signal > 5:
-                    time.sleep(0.01)
-                raw_uv = interface.get_microvolts(interface.get_raw(curr_time))
+        while True:
+            
+            # Current time from start
+            curr_time = time.time() - t_start
 
-                # Append raw_uv values to deque
-                self.att_deque.append(raw_uv)
+            # If a blink is detected, wait before continuing trying to update att_list
+            while interface.detect_blink():
+                time.sleep(0.2)
 
-                # Remove first value
-                self.att_deque.popleft()
+            # Wait until headset steadies, then get raw_uv value
+            while interface.headset is not None and interface.headset.poor_signal > 5:
+                time.sleep(0.01)
+            raw_uv = interface.get_microvolts(interface.get_raw(curr_time))
 
-                # Update attention level using our attention function
-                new_attention = interface.get_our_attention(self.att_deque, self.baseline_list, curr_time)
-                # If new_attention > 10 from the curr_attention, set curr_attention to curr_attention + 10
-                if new_attention > self.curr_attention + 10:
-                    self.curr_attention = self.curr_attention + 10
+            # Append raw_uv values to deque
+            self.att_deque.append(raw_uv)
 
-                # If new_attention < 10 from the curr_attention, set curr_attention to curr_attention - 10
-                elif new_attention < self.curr_attention - 10:
-                    self.curr_attention = self.curr_attention - 10
+            # Remove first value
+            self.att_deque.popleft()
 
-                # If new_attention is within 10 of the curr_attention, just update curr_attention with
-                # the new_attention value
-                else:
-                    self.curr_attention = new_attention
+            # Update attention level using our attention function
+            new_attention = interface.get_our_attention(self.att_deque, self.baseline_list)
+            # If new_attention > 10 from the curr_attention, set curr_attention to curr_attention + 10
+            if new_attention > self.curr_attention + 10:
+                self.curr_attention = self.curr_attention + 10
 
-                # Wait a sampling_rate number of seconds before taking next sample
-                time.sleep(self.sampling_rate)
-        else:
-            # Set the attention to read from the gameplay file if the headset is not connected
-            interface.set_file("../neurosky/data/game_1_min.csv")
-        return
+            # If new_attention < 10 from the curr_attention, set curr_attention to curr_attention - 10
+            elif new_attention < self.curr_attention - 10:
+                self.curr_attention = self.curr_attention - 10
+
+            # If new_attention is within 10 of the curr_attention, just update curr_attention with
+            # the new_attention value
+            else:
+                self.curr_attention = new_attention
+
+            # Wait a sampling_rate number of seconds before taking next sample
+            time.sleep(self.sampling_rate)

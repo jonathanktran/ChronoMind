@@ -5,10 +5,10 @@ The enemies and rounds are instantiated, but not added to their respective lists
 from display import DISPLAY_WIDTH, DISPLAY_HEIGHT
 import enemies
 import rounds
-from math import floor, cos, sin, radians, atan
-import color
+from math import floor, cos, sin, radians, atan, log, exp, ceil
+import builtins
 import random
-from numpy.random import randint, dirichlet
+from numpy.random import randint, normal
 import numpy as np
 import misc
 
@@ -94,6 +94,13 @@ round_spawnrate_list = [
 
 # endregion Reference Round Spawnrate
 
+# region Reference Difficulties
+
+BASE_ENEMY_DIFFICULTY = 0.5
+BASE_ROUND_DIFFICULTY = 2
+
+# endregion Reference Difficulties
+
 # endregion References
 
 # region Functionality
@@ -143,23 +150,44 @@ def check(time, dt):
             del timeline[ms]
 
 
-def get_enemy_round_count(difficulty):
-    """This function returns the number of enemies and rounds to spawn, given the difficulty.
+def get_enemy_round_difficulty(difficulty):
+    """This function returns the difficulty allocated to rounds, and the difficultly allocated to enemies.
 
     :param difficulty: The current difficulty
-    :return counts: Returns the counts in the form (rounds, enemies)
+    :return difficulty: The difficulty allocated, in the form (round_difficulty, enemy_difficulty)
     """
 
-    # Find the maximum rounds and enemies
-    if difficulty >= 48000: max_counts = (6, 12)
-    elif difficulty >= 32000: max_counts = (6, 8)
-    elif difficulty >= 20000: max_counts = (4, 8)
-    elif difficulty >= 12000: max_counts = (4, 4)
-    elif difficulty >= 4000: max_counts = (2, 4)
-    else:                    max_counts = (0, 8)
+    # Find the probability of a round and the probability of an enemy
+    p_round = 1 / 1 + exp(-(difficulty-9)/4)
+
+    # Find the difficulty assigned to rounds
+    round_difficulty = misc.clamp(0, 1, normal(loc=p_round, scale=0.1))
 
     # Return a number of rounds and enemies to use
-    return random.randint(min(1, max_counts[0]), max_counts[0]), random.randint(min(1, max_counts[1]), max_counts[1])
+    return round_difficulty, 1-round_difficulty
+
+
+def get_difficulty_assignment(average_value, difficulty):
+    """Returns a random list of numbers of length 1 - max_count, who's numbers sum to the provided difficulty.
+
+    :param average_value: The average difficulty
+    :param difficulty: The total difficulty to assign throughout the list
+    """
+
+    # Find the average number of elements in the list, given the average element value and the sum value
+    avg_count = ceil(difficulty / average_value)
+
+    # Find the length of the list
+    length = max(1, randint(avg_count-2, avg_count+2))
+
+    # Find a normally distributed list of the found length
+    normal_list = [max(0, normal(loc=average_value, scale=average_value/5)) for _ in range(length)]
+
+    # Find the sum of the list
+    random_list_sum = sum(normal_list)
+
+    # Scale each entry so that the sum is the difficulty
+    return [element * (difficulty/random_list_sum) for element in normal_list]
 
 
 def get_round_specific_arguments(round_type, arguments):
@@ -246,18 +274,24 @@ def get_position_and_direction():
 
 
 def add_level(time):
-    """This function adds a four seconds worth of enemies to the timeline at the given time."""
+    """This function adds a four seconds worth of enemies to the timeline at the given time.
+
+    :param time: The current time in ms
+    """
+
+    # First, find the difficulty from the time
+    difficulty = max(4, builtins.round(3 * log(time/1000 + 1)))
 
     # First, find the max number of rounds that can be active at once
-    round_count, enemy_count = get_enemy_round_count(time)
+    round_difficulty, enemy_difficulty = get_enemy_round_difficulty(difficulty)
 
-    # Randomly distribute the difficulty among the rounds and enemies
-    #difficulty_distribution = dirichlet(np.ones(round_count + enemy_count), size=difficulty)
-    #round_distribution = difficulty_distribution[:round_count]
-    #enemy_distribution = difficulty_distribution[round_count:]
+    # Find the number of rounds and enemies
+    round_difficulties = get_difficulty_assignment(BASE_ROUND_DIFFICULTY, round_difficulty)
+    enemy_difficulties = get_difficulty_assignment(BASE_ROUND_DIFFICULTY, enemy_difficulty)
+    print(round_difficulties, enemy_difficulties)
 
     # Next, randomly generate the rounds to add
-    for round in range(round_count):
+    for round in round_difficulties:
 
         # Select the round type
         round_type = random.choice(round_list)
@@ -285,7 +319,7 @@ def add_level(time):
                              enemy=enemy_type, **round_spawnrate,  **round_args))
 
     # Then, randomly generate the enemies to add
-    for enemy in range(enemy_count):
+    for enemy in enemy_difficulties:
 
         # Select the enemy type
         enemy_type = random.choice(enemy_list)

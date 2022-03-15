@@ -13,7 +13,7 @@ r = GOIMAGE.get_rect()
 r.center = display.get_rect().center
 
 
-def run(player, enemies, rounds, calibration_setting, att_object):
+def run(player, enemies, rounds, att_object):
     """This function is a loop which runs a number of times per second, given by the FPS value in display.
 
     :param player: The player object
@@ -53,7 +53,7 @@ def run(player, enemies, rounds, calibration_setting, att_object):
 
         # Set the time multiplier based on the attention measure
         current_attention = att_object.curr_attention
-        time_mult = attention.get_time_mult(current_attention, calibration_setting)
+        time_mult = attention.get_time_mult(current_attention)
 
         # Adjust the time by the time multiplier
         dt = dt * time_mult
