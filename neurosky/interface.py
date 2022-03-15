@@ -383,7 +383,7 @@ def get_slope_list(freq_1, freq_2, pow_1, pow_2):
     :return: a list of [slope, intercept]
     """
     slope = (pow_2 - pow_1) / (freq_2 - freq_1)
-    intercept = pow_1 - a * freq_1
+    intercept = pow_1 - slope * freq_1
     return [slope, intercept]
 
 def get_avg_power(start_freq, end_freq, dataframe):
