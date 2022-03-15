@@ -304,10 +304,10 @@ def get_our_attention(att_deque, baseline_list, time):
         num_sd = get_slow_strength(att_ratio, baseline_list)
 
         # Calculate attention level using number of standard deviations from baseline
-        if(num_sd >= 3):
+        if(num_sd >= 2):
             current_attention = 100
         else:
-            current_attention = num_sd/3 * 100
+            current_attention = num_sd/2 * 100
         
         return current_attention
 
