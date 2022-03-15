@@ -157,7 +157,7 @@ class BlinkBullet(Enemy):
     # region Constants
 
     BLINK_RATE = 500
-    BLINK_DISTANCE = 64
+    BLINK_DISTANCE = 96
 
     # endregion Constants
 
@@ -202,7 +202,7 @@ class BlinkBullet(Enemy):
         # Check if it is time to blink positions
         if self.position_time > self.BLINK_RATE:
 
-            # Reset the opacity timer
+            # Reset the blink timer
             self.position_time = self.position_time - self.BLINK_RATE
 
             # Invert the normal vector
@@ -230,7 +230,14 @@ class BlinkBullet(Enemy):
 
     def draw(self, display):
         """Draw the bullet to the screen"""
+
+        # Draw the current position
         display.blit(rot_image(self.image, self.rotation), (self.x, self.y))
+
+        # Draw the blink position
+        blink_image = rot_image(self.image, self.rotation)
+        blink_image.fill((255, 255, 255, 96), None, pg.BLEND_RGBA_MULT)
+        display.blit(blink_image, (self.x - self.norm_vec[0], self.y - self.norm_vec[1]))
 
 
 class WaveBullet(Enemy):
