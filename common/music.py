@@ -59,6 +59,13 @@ class AudioFile:
         real_tones = np.fromstring(self.wf.readframes(samples_per_channel), dtype=np.int16).astype(np.float) \
                      * self.volume
 
+        # If the track is at the end, sample from the beginning again
+        if len(real_tones) != samples_per_channel*2:
+            self.wf.setpos(0)
+            wrapped_tones = np.fromstring(self.wf.readframes(int(samples_per_channel - len(real_tones)/2)),
+                                          dtype=np.int16).astype(np.float) * self.volume
+            real_tones = np.append(real_tones, wrapped_tones)
+
         # Check for the end of the file
         if len(real_tones) == 0:
             self.stop = True
