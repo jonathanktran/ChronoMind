@@ -366,8 +366,11 @@ def remove_blink(df):
     for time in out_range_df["seconds"]:
         # Obtain the previous value of raw_uv (before the blink section)
         prev_df = df[df["seconds"] < time - 0.2]
-        prev_ind = prev_df.index.values.astype(int)[len(prev_df)-1]
-        prev_uv = df.iloc[prev_ind, raw_uv_ind]
+        if len(prev_df) == 0: # no data before blink, then no signal
+            prev_uv = 0
+        else:
+            prev_ind = prev_df.index.values.astype(int)[len(prev_df)-1]
+            prev_uv = df.iloc[prev_ind, raw_uv_ind]
         # For the range less than 200 ms and greater than 200 ms of the peak blink,
         # Set these equal to the previous value of raw_uv
         df.loc[(df["seconds"] <= time + 0.2) & (df["seconds"] >= time - 0.2), "raw_uv"] = prev_uv
