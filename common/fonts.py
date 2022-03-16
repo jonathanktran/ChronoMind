@@ -7,19 +7,19 @@ import pygame as pg
 pg.font.init()
 
 # The font used to display the hud
-HUD = pg.font.SysFont('Trebuchet MS', 50)
+HUD = pg.font.Font('../assets/Fonts/MonsterFriendFore.otf', 50)
 
 # The font used to display the maths letters
-MATH = pg.font.SysFont('Comic Sans MS', 60)
+MATH = pg.font.Font('../assets/Fonts/MonsterFriendFore.otf', 60)
 
 # The font used for the Credits Button
-CREDITS = pg.font.SysFont('Trebuchet MS', 50)
+CREDITS = pg.font.Font('../assets/Fonts/MonsterFriendFore.otf', 50)
 
 # The font used for the Credits Text
-CREDITSTEXT = pg.font.SysFont('Trebuchet MS', 30)
+CREDITSTEXT = pg.font.Font('../assets/Fonts/MonsterFriendFore.otf', 30)
 
 # The font used for the Quit Button
-QUIT = pg.font.SysFont('Trebuchet MS', 50)
+QUIT = pg.font.Font('../assets/Fonts/MonsterFriendFore.otf', 50)
 
 # The font used for the Back Button
-BACK = pg.font.SysFont('Trebuchet MS', 50)
+BACK = pg.font.Font('../assets/Fonts/MonsterFriendFore.otf', 50)
