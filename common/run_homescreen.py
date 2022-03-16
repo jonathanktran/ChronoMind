@@ -131,7 +131,7 @@ def run_credits(mouse):
 
     # The text to display
     text =  fonts.BACK.render("CREDITS", True, color.WHITE)
-    text2 = fonts.CREDITSTEXT.render("~ Graphic Design by Jonny and Janty ~", True, color.WHITE)
+    text2 = fonts.CREDITSTEXT.render("~ Graphic Design by Jeff and Janty ~", True, color.WHITE)
     text3 = fonts.CREDITSTEXT.render("~ Attention Measure by Meghana & Jonny ~", True, color.WHITE)
     text4 = fonts.CREDITSTEXT.render("~ Game Design and Implementation by Will & Zytal ~", True, color.WHITE)
 
