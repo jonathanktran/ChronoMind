@@ -6,7 +6,7 @@ from run_homescreen import run_homescreen
 from display import *
 from enemies import enemy_list
 from rounds import round_list
-import player
+import player as PlayerFile
 import music
 import threading
 import platform
@@ -68,7 +68,7 @@ while stop is not True:
     if not stop:
 
         # Create the player
-        player = player.Player(DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2)
+        player = PlayerFile.Player(DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2)
 
         # Create the music object
         audio = music.AudioFile('../assets/music/Megalovania.wav')
