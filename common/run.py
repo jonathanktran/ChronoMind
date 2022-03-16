@@ -113,7 +113,6 @@ def run(player, enemies, rounds, att_object):
         # region Draw the HUD
 
         # Draw the number of lives
-
         pg.draw.rect(display, (255, 0, 0), (10, 10, 300 * (player.lives / player.MAX_LIVES), 25))
         pg.draw.rect(display, (255, 255, 255), (10, 10, 300, 25), 4)
 

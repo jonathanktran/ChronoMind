@@ -45,12 +45,11 @@ while stop is not True:
 
     # region Run Maths Calibration
 
-    # Create calibration object, specifying the number of minutes to run,
-    # which should be equivalent to the run_maths.py variable MAX_TIME / 60000
-    calib_obj = calibration.Calibration(1)
+    # Create calibration object
+    calibration_obj = calibration.Calibration()
 
     # Create the calibration thread
-    calibration_thread = threading.Thread(target=calib_obj.sample)
+    calibration_thread = threading.Thread(target=calibration_obj.sample)
 
     # Run the upper-limit attention calibration
     if not stop:
@@ -98,7 +97,9 @@ while stop is not True:
         stop = run(player, enemy_list, round_list, att_obj)
 
     # Stop measuring attention
-    if not stop and attention_thread.is_alive(): attention_thread.join()
+    if not stop and attention_thread.is_alive():
+        att_obj.stop = True
+        attention_thread.join()
 
     # Stop the music thread
     audio.stop = True

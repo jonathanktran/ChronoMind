@@ -23,11 +23,14 @@ class AttentionMeasure:
         # Attention deque to store last 20 raw_uv values from headset
         self.att_deque = deque([self.baseline_list[0] for i in range(20)])
 
+        # Store whether the attention thread has been stopped
+        self.stop = False
+
     def sample(self):
 
         t_start = time.time()
 
-        while True:
+        while not self.stop:
 
             # Current time from start
             curr_time = time.time() - t_start

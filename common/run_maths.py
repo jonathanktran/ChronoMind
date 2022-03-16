@@ -1,5 +1,6 @@
 """This file contains the method for running the maths portion of the game, which calibrates the upper limit of
-attention."""
+attention.
+"""
 
 import pandas as pd
 

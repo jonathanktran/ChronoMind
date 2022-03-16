@@ -421,6 +421,7 @@ def transform_calibration(df):
     :param df: calibration dataframe without any filtering
     :return: calibration dataframe with power values for gamma and alpha appended
     """
+
     # Perform filtering on dataframe
     df = remove_blink(df)
 
@@ -432,8 +433,7 @@ def transform_calibration(df):
     df["our-alpha"] = 0
     df["our-gamma"] = 0
     for i in range(0, len(df), num_included):
-        # Split df into subsets of num_included points each and
-        # run FFT on those subsets
+        # Split df into subsets of num_included points each and run FFT on those subsets
         subset_df = df.iloc[i:i+num_included,:]
         transformed_uv = fft((subset_df["raw_uv"]).to_numpy())
         N = len(subset_df) # number of points
@@ -460,7 +460,6 @@ def transform_calibration(df):
         df.loc[i:i+num_included, "our-alpha"] = get_avg_power(8, 13, freq_pow_df)
         df.loc[i:i+num_included, "our-gamma"] = get_avg_power(30, 50, freq_pow_df)
 
-    # Edit the our-attention column to have the ratio using our derived
-    # alpha and gamma values
+    # Edit the our-attention column to have the ratio using our derived alpha and gamma values
     df["our-attention"] = df["our-gamma"] / df["our-alpha"]
     return df
